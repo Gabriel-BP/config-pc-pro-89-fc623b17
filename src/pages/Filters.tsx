@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Cpu, MonitorUp, Square } from "lucide-react";
 import InteractiveBackground from "@/components/InteractiveBackground";
+import ProcessorSelector from "@/components/filters/ProcessorSelector";
+import GpuSelector from "@/components/filters/GpuSelector";
+import MotherboardSelector from "@/components/filters/MotherboardSelector";
 
 type ProcessorBrand = "intel" | "amd" | null;
 type SocketType = "am4" | "am5" | "lga1200" | "lga1700" | "lga1851" | null;
@@ -16,44 +18,6 @@ export default function Filters() {
   const [socket, setSocket] = useState<SocketType>(null);
   const [gpuBrand, setGpuBrand] = useState<GpuBrand>(null);
   const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(null);
-  const [isSocketVisible, setIsSocketVisible] = useState(false);
-
-  const handleProcessorBrandChange = (value: ProcessorBrand) => {
-    if (value === processorBrand) {
-      // Deselecting current brand
-      setIsSocketVisible(false);
-      // Delay state change to allow animation to complete
-      setTimeout(() => {
-        setProcessorBrand(null);
-        setSocket(null);
-      }, 300);
-    } else {
-      // Changing or selecting a brand
-      if (processorBrand) {
-        // If we're switching brands, animate out first
-        setIsSocketVisible(false);
-        setTimeout(() => {
-          setProcessorBrand(value);
-          setSocket(null);
-          // Then animate in the new options
-          setIsSocketVisible(true);
-        }, 300);
-      } else {
-        // First selection
-        setProcessorBrand(value);
-        setSocket(null);
-        setIsSocketVisible(true);
-      }
-    }
-  };
-
-  const handleGpuBrandChange = (value: GpuBrand) => {
-    setGpuBrand(gpuBrand === value ? null : value);
-  };
-
-  const handleMotherboardSizeChange = (value: MotherboardSize) => {
-    setMotherboardSize(motherboardSize === value ? null : value);
-  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -65,246 +29,19 @@ export default function Filters() {
           </h1>
 
           <div className="space-y-12">
-            {/* Procesador */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
-                <Cpu className="w-6 h-6" />
-                Procesador
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    processorBrand === "intel"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleProcessorBrandChange("intel")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="Intel"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>Intel</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    processorBrand === "amd"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleProcessorBrandChange("amd")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="AMD"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>AMD</span>
-                </Button>
-              </div>
+            <ProcessorSelector
+              processorBrand={processorBrand}
+              socket={socket}
+              onProcessorChange={setProcessorBrand}
+              onSocketChange={setSocket}
+            />
 
-              {processorBrand && (
-                <div 
-                  className={`pl-6 space-y-4 transition-opacity duration-300 ease-in-out ${
-                    isSocketVisible ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <h3 className="text-xl font-medium text-white">Socket</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {processorBrand === "amd" ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                            socket === "am4"
-                              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                              : "hover:bg-gray-800/50"
-                          }`}
-                          onClick={() => setSocket(socket === "am4" ? null : "am4")}
-                        >
-                          <img
-                            src="/placeholder.svg"
-                            alt="AM4"
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <span>AM4</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                            socket === "am5"
-                              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                              : "hover:bg-gray-800/50"
-                          }`}
-                          onClick={() => setSocket(socket === "am5" ? null : "am5")}
-                        >
-                          <img
-                            src="/placeholder.svg"
-                            alt="AM5"
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <span>AM5</span>
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          variant="outline"
-                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                            socket === "lga1200"
-                              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                              : "hover:bg-gray-800/50"
-                          }`}
-                          onClick={() => setSocket(socket === "lga1200" ? null : "lga1200")}
-                        >
-                          <img
-                            src="/placeholder.svg"
-                            alt="LGA 1200"
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <span>LGA 1200</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                            socket === "lga1700"
-                              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                              : "hover:bg-gray-800/50"
-                          }`}
-                          onClick={() => setSocket(socket === "lga1700" ? null : "lga1700")}
-                        >
-                          <img
-                            src="/placeholder.svg"
-                            alt="LGA 1700"
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <span>LGA 1700</span>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                            socket === "lga1851"
-                              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                              : "hover:bg-gray-800/50"
-                          }`}
-                          onClick={() => setSocket(socket === "lga1851" ? null : "lga1851")}
-                        >
-                          <img
-                            src="/placeholder.svg"
-                            alt="LGA 1851"
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                          <span>LGA 1851</span>
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
+            <GpuSelector gpuBrand={gpuBrand} onGpuChange={setGpuBrand} />
 
-            {/* Tarjeta Gráfica */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
-                <MonitorUp className="w-6 h-6" />
-                Tarjeta Gráfica
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    gpuBrand === "nvidia"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleGpuBrandChange("nvidia")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="NVIDIA"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>NVIDIA</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    gpuBrand === "amd"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleGpuBrandChange("amd")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="AMD"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>AMD</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Tamaño de Placa Base */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
-                <Square className="w-6 h-6" />
-                Tamaño de Placa Base
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    motherboardSize === "atx"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleMotherboardSizeChange("atx")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="ATX"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>ATX</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    motherboardSize === "micro-atx"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleMotherboardSizeChange("micro-atx")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="Micro-ATX"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>Micro-ATX</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
-                    motherboardSize === "mini-itx"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
-                  }`}
-                  onClick={() => handleMotherboardSizeChange("mini-itx")}
-                >
-                  <img
-                    src="/placeholder.svg"
-                    alt="Mini-ITX"
-                    className="w-12 h-12 object-cover rounded"
-                  />
-                  <span>Mini-ITX</span>
-                </Button>
-              </div>
-            </div>
+            <MotherboardSelector
+              motherboardSize={motherboardSize}
+              onMotherboardSizeChange={setMotherboardSize}
+            />
           </div>
 
           <Button
