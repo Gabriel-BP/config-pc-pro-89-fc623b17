@@ -1,13 +1,12 @@
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ComponentCategory } from "@/types/components";
 import {
   Cpu,
-  Gpu,
+  Graphics,
   HardDrive,
   MonitorUp,
-  Motherboard,
+  Server,
   Power,
   Square,
   Fan,
@@ -20,8 +19,8 @@ interface CategorySelectorProps {
 
 const categories = [
   { id: "cpu", name: "Procesador", icon: Cpu },
-  { id: "gpu", name: "Tarjeta Gráfica", icon: Gpu },
-  { id: "motherboard", name: "Placa Base", icon: Motherboard },
+  { id: "graphics", name: "Tarjeta Gráfica", icon: Graphics },
+  { id: "motherboard", name: "Placa Base", icon: Server },
   { id: "memory", name: "Memoria RAM", icon: MonitorUp },
   { id: "storage", name: "Almacenamiento", icon: HardDrive },
   { id: "power-supply", name: "Fuente", icon: Power },
