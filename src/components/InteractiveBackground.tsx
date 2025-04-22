@@ -15,9 +15,9 @@ const InteractiveBackground: React.FC = () => {
       const relativeX = clientX / innerWidth;
       const relativeY = clientY / innerHeight;
 
-      // Create parallax effect
-      const moveX = relativeX * 20 - 10; // -10 to 10
-      const moveY = relativeY * 20 - 10; // -10 to 10
+      // Create a softer parallax effect with smaller movement range
+      const moveX = relativeX * 10 - 5; // -5 to 5 (reduced from -10 to 10)
+      const moveY = relativeY * 10 - 5; // -5 to 5 (reduced from -10 to 10)
 
       // Update gradient position
       backgroundRef.current.style.background = `
@@ -30,8 +30,8 @@ const InteractiveBackground: React.FC = () => {
         linear-gradient(to bottom right, #1a1f2c, #0f1117)
       `;
 
-      // Apply transform for subtle parallax
-      backgroundRef.current.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      // Apply transform with scale to prevent white borders
+      backgroundRef.current.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.05)`;
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -42,7 +42,11 @@ const InteractiveBackground: React.FC = () => {
     <div
       ref={backgroundRef}
       className="fixed inset-0 transition-transform duration-200 ease-out"
-      style={{ background: 'linear-gradient(to bottom right, #1a1f2c, #0f1117)' }}
+      style={{ 
+        background: 'linear-gradient(to bottom right, #1a1f2c, #0f1117)',
+        // Add initial scale to prevent white borders
+        transform: 'scale(1.05)'
+      }}
     />
   );
 };
