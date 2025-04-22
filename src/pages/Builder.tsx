@@ -5,6 +5,7 @@ import { CategorySelector } from "@/components/CategorySelector";
 import { ComponentList } from "@/components/ComponentList";
 import { BuildSummary } from "@/components/BuildSummary";
 import { Toaster } from "@/components/ui/sonner";
+import InteractiveBackground from "@/components/InteractiveBackground";
 
 export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | null>(
@@ -30,29 +31,33 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent relative overflow-hidden">
+      <InteractiveBackground />
       <Toaster />
-      <header className="bg-white border-b">
+      
+      <header className="relative z-10 border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Configurador de PC</h1>
+          <h1 className="text-3xl font-bold text-white">Configurador de PC</h1>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="grid md:grid-cols-[2fr,1fr] gap-8">
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-in">
             <CategorySelector
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
             />
             {selectedCategory && (
-              <ComponentList
-                category={selectedCategory}
-                onSelectComponent={handleSelectComponent}
-              />
+              <div className="animate-fade-in">
+                <ComponentList
+                  category={selectedCategory}
+                  onSelectComponent={handleSelectComponent}
+                />
+              </div>
             )}
           </div>
-          <div>
+          <div className="animate-fade-in">
             <BuildSummary
               selectedComponents={selectedComponents}
               onRemoveComponent={handleRemoveComponent}
