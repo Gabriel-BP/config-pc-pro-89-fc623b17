@@ -16,14 +16,34 @@ export default function Filters() {
   const [socket, setSocket] = useState<SocketType>(null);
   const [gpuBrand, setGpuBrand] = useState<GpuBrand>(null);
   const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(null);
+  const [isSocketVisible, setIsSocketVisible] = useState(false);
 
   const handleProcessorBrandChange = (value: ProcessorBrand) => {
     if (value === processorBrand) {
-      setProcessorBrand(null);
-      setSocket(null);
+      // Deselecting current brand
+      setIsSocketVisible(false);
+      // Delay state change to allow animation to complete
+      setTimeout(() => {
+        setProcessorBrand(null);
+        setSocket(null);
+      }, 300);
     } else {
-      setProcessorBrand(value);
-      setSocket(null);
+      // Changing or selecting a brand
+      if (processorBrand) {
+        // If we're switching brands, animate out first
+        setIsSocketVisible(false);
+        setTimeout(() => {
+          setProcessorBrand(value);
+          setSocket(null);
+          // Then animate in the new options
+          setIsSocketVisible(true);
+        }, 300);
+      } else {
+        // First selection
+        setProcessorBrand(value);
+        setSocket(null);
+        setIsSocketVisible(true);
+      }
     }
   };
 
@@ -87,7 +107,11 @@ export default function Filters() {
               </div>
 
               {processorBrand && (
-                <div className="pl-6 space-y-4 animate-fade-in">
+                <div 
+                  className={`pl-6 space-y-4 transition-opacity duration-300 ease-in-out ${
+                    isSocketVisible ? "opacity-100" : "opacity-0"
+                  }`}
+                >
                   <h3 className="text-xl font-medium text-white">Socket</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {processorBrand === "amd" ? (
