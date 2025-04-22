@@ -61,7 +61,7 @@ export default function ProcessorSelector({
           onClick={() => handleProcessorBrandChange("intel")}
         >
           <img
-            src="/placeholder.svg"
+            src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
             alt="Intel"
             className="w-12 h-12 object-cover rounded"
           />
@@ -77,7 +77,7 @@ export default function ProcessorSelector({
           onClick={() => handleProcessorBrandChange("amd")}
         >
           <img
-            src="/placeholder.svg"
+            src="/lovable-uploads/e5003a63-78de-4f15-a16f-033cbed63300.png"
             alt="AMD"
             className="w-12 h-12 object-cover rounded"
           />

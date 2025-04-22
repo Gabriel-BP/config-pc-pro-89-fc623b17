@@ -31,7 +31,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           onClick={() => handleGpuBrandChange("nvidia")}
         >
           <img
-            src="/placeholder.svg"
+            src="/lovable-uploads/eb7c955a-2b19-4c80-8db4-46cd7f425fc0.png"
             alt="NVIDIA"
             className="w-12 h-12 object-cover rounded"
           />
@@ -47,7 +47,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           onClick={() => handleGpuBrandChange("amd")}
         >
           <img
-            src="/placeholder.svg"
+            src="/lovable-uploads/e5003a63-78de-4f15-a16f-033cbed63300.png"
             alt="AMD"
             className="w-12 h-12 object-cover rounded"
           />
