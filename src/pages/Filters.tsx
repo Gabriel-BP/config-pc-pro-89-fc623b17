@@ -94,7 +94,7 @@ export default function Filters() {
                       <>
                         <Button
                           variant="outline"
-                          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
                             socket === "am4"
                               ? "bg-blue-900/50 border-blue-500 text-blue-300"
                               : "hover:bg-gray-800/50"
@@ -110,7 +110,7 @@ export default function Filters() {
                         </Button>
                         <Button
                           variant="outline"
-                          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
                             socket === "am5"
                               ? "bg-blue-900/50 border-blue-500 text-blue-300"
                               : "hover:bg-gray-800/50"
@@ -129,7 +129,7 @@ export default function Filters() {
                       <>
                         <Button
                           variant="outline"
-                          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
                             socket === "lga1200"
                               ? "bg-blue-900/50 border-blue-500 text-blue-300"
                               : "hover:bg-gray-800/50"
@@ -145,7 +145,7 @@ export default function Filters() {
                         </Button>
                         <Button
                           variant="outline"
-                          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
                             socket === "lga1700"
                               ? "bg-blue-900/50 border-blue-500 text-blue-300"
                               : "hover:bg-gray-800/50"
@@ -161,7 +161,7 @@ export default function Filters() {
                         </Button>
                         <Button
                           variant="outline"
-                          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                          className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
                             socket === "lga1851"
                               ? "bg-blue-900/50 border-blue-500 text-blue-300"
                               : "hover:bg-gray-800/50"
