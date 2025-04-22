@@ -3,9 +3,8 @@ import { cn } from "@/lib/utils";
 import { ComponentCategory } from "@/types/components";
 import {
   Cpu,
-  Graphics,
-  HardDrive,
   MonitorUp,
+  HardDrive,
   Server,
   Power,
   Square,
@@ -19,7 +18,7 @@ interface CategorySelectorProps {
 
 const categories = [
   { id: "cpu", name: "Procesador", icon: Cpu },
-  { id: "graphics", name: "Tarjeta Gráfica", icon: Graphics },
+  { id: "gpu", name: "Tarjeta Gráfica", icon: MonitorUp },
   { id: "motherboard", name: "Placa Base", icon: Server },
   { id: "memory", name: "Memoria RAM", icon: MonitorUp },
   { id: "storage", name: "Almacenamiento", icon: HardDrive },
