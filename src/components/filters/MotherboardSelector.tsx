@@ -26,10 +26,10 @@ export default function MotherboardSelector({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             motherboardSize === "atx"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleMotherboardSizeChange("atx")}
         >
@@ -42,10 +42,10 @@ export default function MotherboardSelector({
         </Button>
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             motherboardSize === "micro-atx"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleMotherboardSizeChange("micro-atx")}
         >
@@ -58,10 +58,10 @@ export default function MotherboardSelector({
         </Button>
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             motherboardSize === "mini-itx"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleMotherboardSizeChange("mini-itx")}
         >

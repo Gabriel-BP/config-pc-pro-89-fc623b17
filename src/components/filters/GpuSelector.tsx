@@ -23,10 +23,10 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             gpuBrand === "nvidia"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleGpuBrandChange("nvidia")}
         >
@@ -39,10 +39,10 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
         </Button>
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             gpuBrand === "amd"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleGpuBrandChange("amd")}
         >

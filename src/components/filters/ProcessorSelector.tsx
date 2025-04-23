@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Cpu } from "lucide-react";
@@ -52,10 +53,10 @@ export default function ProcessorSelector({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             processorBrand === "intel"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleProcessorBrandChange("intel")}
         >
@@ -68,10 +69,10 @@ export default function ProcessorSelector({
         </Button>
         <Button
           variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
             processorBrand === "amd"
               ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/50"
+              : "hover:bg-gray-800/70"
           }`}
           onClick={() => handleProcessorBrandChange("amd")}
         >
@@ -96,33 +97,33 @@ export default function ProcessorSelector({
               <>
                 <Button
                   variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
                     socket === "am4"
                       ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
+                      : "hover:bg-gray-800/70"
                   }`}
                   onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
                 >
                   <img
                     src="/placeholder.svg"
                     alt="AM4"
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-contain rounded"
                   />
                   <span>AM4</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
                     socket === "am5"
                       ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
+                      : "hover:bg-gray-800/70"
                   }`}
                   onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
                 >
                   <img
                     src="/placeholder.svg"
                     alt="AM5"
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-contain rounded"
                   />
                   <span>AM5</span>
                 </Button>
@@ -131,10 +132,10 @@ export default function ProcessorSelector({
               <>
                 <Button
                   variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
                     socket === "lga1200"
                       ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
+                      : "hover:bg-gray-800/70"
                   }`}
                   onClick={() =>
                     onSocketChange(socket === "lga1200" ? null : "lga1200")
@@ -143,16 +144,16 @@ export default function ProcessorSelector({
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1200"
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-contain rounded"
                   />
                   <span>LGA 1200</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
                     socket === "lga1700"
                       ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
+                      : "hover:bg-gray-800/70"
                   }`}
                   onClick={() =>
                     onSocketChange(socket === "lga1700" ? null : "lga1700")
@@ -161,16 +162,16 @@ export default function ProcessorSelector({
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1700"
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-contain rounded"
                   />
                   <span>LGA 1700</span>
                 </Button>
                 <Button
                   variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all ${
+                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
                     socket === "lga1851"
                       ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/50"
+                      : "hover:bg-gray-800/70"
                   }`}
                   onClick={() =>
                     onSocketChange(socket === "lga1851" ? null : "lga1851")
@@ -179,7 +180,7 @@ export default function ProcessorSelector({
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1851"
-                    className="w-12 h-12 object-cover rounded"
+                    className="w-12 h-12 object-contain rounded"
                   />
                   <span>LGA 1851</span>
                 </Button>
