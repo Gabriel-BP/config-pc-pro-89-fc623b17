@@ -77,7 +77,7 @@ export default function ProcessorSelector({
           onClick={() => handleProcessorBrandChange("amd")}
         >
           <img
-            src="/lovable-uploads/e5003a63-78de-4f15-a16f-033cbed63300.png"
+            src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
             alt="AMD"
             className="w-12 h-12 object-cover rounded"
           />
