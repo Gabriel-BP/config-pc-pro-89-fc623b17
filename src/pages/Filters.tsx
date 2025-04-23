@@ -18,22 +18,23 @@ export default function Filters() {
   const navigate = useNavigate();
   const { filters, setFilters } = useFilters();
   
-  // Local state initialized from context
   const [processorBrand, setProcessorBrand] = useState<ProcessorBrand>(filters.processorBrand);
   const [socket, setSocket] = useState<SocketType>(filters.socket);
   const [gpuBrand, setGpuBrand] = useState<GpuBrand>(filters.gpuBrand);
   const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
 
-  // Update context when continuing to builder
   const handleContinue = () => {
-    setFilters({
-      processorBrand,
-      socket,
-      gpuBrand,
-      motherboardSize
-    });
+    // Only include selected filters (non-null values)
+    const newFilters = {
+      ...(processorBrand && { processorBrand }),
+      ...(socket && { socket }),
+      ...(gpuBrand && { gpuBrand }),
+      ...(motherboardSize && { motherboardSize })
+    };
     
-    const hasFilters = processorBrand || socket || gpuBrand || motherboardSize;
+    setFilters(newFilters);
+    
+    const hasFilters = Object.keys(newFilters).length > 0;
     if (hasFilters) {
       toast.success("Filtros aplicados");
     }
