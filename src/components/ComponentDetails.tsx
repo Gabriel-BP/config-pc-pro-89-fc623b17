@@ -4,17 +4,31 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
 
 interface ComponentDetailsProps {
   component: Component | null;
   isOpen: boolean;
   onClose: () => void;
+  onAddComponent: (component: Component) => void;
 }
 
-export function ComponentDetails({ component, isOpen, onClose }: ComponentDetailsProps) {
+export function ComponentDetails({ 
+  component, 
+  isOpen, 
+  onClose,
+  onAddComponent 
+}: ComponentDetailsProps) {
   if (!component) return null;
+
+  const handleAddComponent = () => {
+    onAddComponent(component);
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -67,6 +81,16 @@ export function ComponentDetails({ component, isOpen, onClose }: ComponentDetail
             </div>
           </div>
         </div>
+
+        <DialogFooter className="mt-6">
+          <Button
+            onClick={handleAddComponent}
+            className="w-full sm:w-auto"
+          >
+            <Plus className="mr-2" />
+            Añadir a la build
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

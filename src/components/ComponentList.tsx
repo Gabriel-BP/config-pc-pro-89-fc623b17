@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -23,7 +24,6 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
   const handleComponentClick = (component: Component) => {
     setSelectedComponent(component);
     setIsDetailsOpen(true);
-    onSelectComponent(component);
   };
 
   if (isLoading) {
@@ -71,6 +71,7 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
         component={selectedComponent}
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
+        onAddComponent={onSelectComponent}
       />
     </>
   );
