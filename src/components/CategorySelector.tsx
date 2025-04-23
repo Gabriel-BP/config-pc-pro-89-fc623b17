@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ComponentCategory } from "@/types/components";
@@ -35,19 +36,25 @@ export function CategorySelector({
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
       {categories.map((category) => {
         const Icon = category.icon;
+        const isSelected = selectedCategory === category.id;
+        
         return (
           <Button
             key={category.id}
             variant="outline"
             className={cn(
               "h-24 flex flex-col items-center justify-center gap-2 transition-all",
-              selectedCategory === category.id &&
-                "bg-blue-50 border-blue-500 text-blue-700"
+              isSelected
+                ? "bg-blue-50 border-blue-500 text-blue-700"
+                : "hover:bg-gray-50/10"
             )}
             onClick={() => onSelectCategory(category.id as ComponentCategory)}
           >
             <Icon className="w-6 h-6" />
             <span className="text-sm font-medium">{category.name}</span>
+            {isSelected && (
+              <span className="text-xs font-light">(Click para deseleccionar)</span>
+            )}
           </Button>
         );
       })}
