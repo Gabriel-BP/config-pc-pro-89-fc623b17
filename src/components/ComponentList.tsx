@@ -4,7 +4,8 @@ import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentDetails } from "./ComponentDetails";
-import { useState } from "react";
+import { SortControls } from "./SortControls";
+import { useState, useMemo } from "react";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -15,11 +16,39 @@ interface ComponentListProps {
 export function ComponentList({ category, onSelectComponent, filters }: ComponentListProps) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
 
   const { data: components, isLoading } = useQuery({
     queryKey: ["components", category, filters],
     queryFn: () => getComponents(category, filters),
   });
+
+  const sortedComponents = useMemo(() => {
+    if (!components) return [];
+    
+    const componentsCopy = [...components];
+    
+    switch (sortOption) {
+      case "nameAsc":
+        return componentsCopy.sort((a, b) => a.Nombre.localeCompare(b.Nombre));
+      case "nameDesc":
+        return componentsCopy.sort((a, b) => b.Nombre.localeCompare(a.Nombre));
+      case "priceAsc":
+        return componentsCopy.sort((a, b) => {
+          const priceA = a.Precios.Nuevos?.Precio.valor || 0;
+          const priceB = b.Precios.Nuevos?.Precio.valor || 0;
+          return priceA - priceB;
+        });
+      case "priceDesc":
+        return componentsCopy.sort((a, b) => {
+          const priceA = a.Precios.Nuevos?.Precio.valor || 0;
+          const priceB = b.Precios.Nuevos?.Precio.valor || 0;
+          return priceB - priceA;
+        });
+      default:
+        return componentsCopy;
+    }
+  }, [components, sortOption]);
 
   const handleComponentClick = (component: Component) => {
     setSelectedComponent(component);
@@ -44,8 +73,10 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
 
   return (
     <>
+      <SortControls onSort={setSortOption} currentSort={sortOption} />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {components?.map((component: Component) => (
+        {sortedComponents.map((component: Component) => (
           <Card
             key={component._id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
