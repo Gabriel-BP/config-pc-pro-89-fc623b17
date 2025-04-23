@@ -1,3 +1,4 @@
+
 // server/index.js
 require('dotenv').config();
 const express = require('express');
@@ -30,13 +31,56 @@ app.get('/api/components/:category', async (req, res) => {
     if (!collName) {
         return res.status(404).json({ error: 'Categoría no válida' });
     }
-
+    
     try {
-        // Leemos directamente la colección con el driver de mongoose
+        // Construir el query basado en los filtros recibidos
+        let query = {};
+        
+        // Aplicar filtros específicos según la categoría
+        if (req.query) {
+            // Filtros para CPU
+            if (category === 'cpu' && req.query.processorBrand) {
+                query = { ...query, Marca: { $regex: new RegExp(req.query.processorBrand, 'i') } };
+            }
+            
+            if (category === 'cpu' && req.query.socket) {
+                query = { 
+                    ...query, 
+                    'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
+                };
+            }
+            
+            // Filtros para GPU
+            if (category === 'gpu' && req.query.gpuBrand) {
+                query = { ...query, Marca: { $regex: new RegExp(req.query.gpuBrand, 'i') } };
+            }
+            
+            // Filtros para Motherboard
+            if (category === 'motherboard' && req.query.motherboardSize) {
+                query = { 
+                    ...query, 
+                    'Características.Factor de forma': { $regex: new RegExp(req.query.motherboardSize, 'i') }
+                };
+            }
+            
+            // Si hay socket seleccionado, filtrar placas base compatibles
+            if (category === 'motherboard' && req.query.socket) {
+                query = { 
+                    ...query, 
+                    'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
+                };
+            }
+        }
+
+        console.log('Aplicando filtros:', query);
+        
+        // Leemos la colección con los filtros aplicados
         const items = await mongoose.connection.db
             .collection(collName)
-            .find({})
+            .find(query)
             .toArray();
+            
+        console.log(`Encontrados ${items.length} componentes en ${collName}`);
         res.json(items);
     } catch (err) {
         console.error('🔥 Error al consultar la colección', collName, err);

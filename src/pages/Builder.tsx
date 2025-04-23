@@ -6,14 +6,18 @@ import { ComponentList } from "@/components/ComponentList";
 import { BuildSummary } from "@/components/BuildSummary";
 import { Toaster } from "@/components/ui/sonner";
 import InteractiveBackground from "@/components/InteractiveBackground";
+import { useFilters } from "@/context/FilterContext";
 
-export default function Index() {
+export default function Builder() {
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | null>(
     null
   );
   const [selectedComponents, setSelectedComponents] = useState<
     Partial<Record<ComponentCategory, Component>>
   >({});
+  
+  // Get filters from context
+  const { filters } = useFilters();
 
   const handleSelectComponent = (component: Component) => {
     setSelectedComponents((prev) => ({
@@ -53,6 +57,7 @@ export default function Index() {
                 <ComponentList
                   category={selectedCategory}
                   onSelectComponent={handleSelectComponent}
+                  filters={filters}
                 />
               </div>
             )}

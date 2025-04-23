@@ -1,11 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import ProcessorSelector from "@/components/filters/ProcessorSelector";
 import GpuSelector from "@/components/filters/GpuSelector";
 import MotherboardSelector from "@/components/filters/MotherboardSelector";
+import { useFilters } from "@/context/FilterContext";
+import { toast } from "sonner";
 
 type ProcessorBrand = "intel" | "amd" | null;
 type SocketType = "am4" | "am5" | "lga1200" | "lga1700" | "lga1851" | null;
@@ -14,10 +16,30 @@ type MotherboardSize = "atx" | "micro-atx" | "mini-itx" | null;
 
 export default function Filters() {
   const navigate = useNavigate();
-  const [processorBrand, setProcessorBrand] = useState<ProcessorBrand>(null);
-  const [socket, setSocket] = useState<SocketType>(null);
-  const [gpuBrand, setGpuBrand] = useState<GpuBrand>(null);
-  const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(null);
+  const { filters, setFilters } = useFilters();
+  
+  // Local state initialized from context
+  const [processorBrand, setProcessorBrand] = useState<ProcessorBrand>(filters.processorBrand);
+  const [socket, setSocket] = useState<SocketType>(filters.socket);
+  const [gpuBrand, setGpuBrand] = useState<GpuBrand>(filters.gpuBrand);
+  const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
+
+  // Update context when continuing to builder
+  const handleContinue = () => {
+    setFilters({
+      processorBrand,
+      socket,
+      gpuBrand,
+      motherboardSize
+    });
+    
+    const hasFilters = processorBrand || socket || gpuBrand || motherboardSize;
+    if (hasFilters) {
+      toast.success("Filtros aplicados");
+    }
+    
+    navigate("/builder");
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -45,7 +67,7 @@ export default function Filters() {
           </div>
 
           <Button
-            onClick={() => navigate("/builder")}
+            onClick={handleContinue}
             size="lg"
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 animate-scale-in"
           >

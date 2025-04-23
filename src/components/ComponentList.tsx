@@ -7,18 +7,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface ComponentListProps {
   category: ComponentCategory;
   onSelectComponent: (component: Component) => void;
+  filters?: any;
 }
 
-export function ComponentList({ category, onSelectComponent }: ComponentListProps) {
+export function ComponentList({ category, onSelectComponent, filters }: ComponentListProps) {
   const { data: components, isLoading } = useQuery({
-    queryKey: ["components", category],
-    queryFn: () => getComponents(category),
+    queryKey: ["components", category, filters],
+    queryFn: () => getComponents(category, filters),
   });
 
   if (isLoading) {
     return (
       <div className="p-8 text-center">
         <p className="text-gray-500">Cargando componentes...</p>
+      </div>
+    );
+  }
+
+  if (!components || components.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-500">No se encontraron componentes con los filtros seleccionados</p>
       </div>
     );
   }

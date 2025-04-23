@@ -8,22 +8,25 @@ import Welcome from "./pages/Welcome";
 import Filters from "./pages/Filters";
 import Builder from "./pages/Builder";
 import NotFound from "./pages/NotFound";
+import { FilterProvider } from "./context/FilterContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Welcome />} />
-          <Route path="/filters" element={<Filters />} />
-          <Route path="/builder" element={<Builder />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <FilterProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/filters" element={<Filters />} />
+            <Route path="/builder" element={<Builder />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </FilterProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
