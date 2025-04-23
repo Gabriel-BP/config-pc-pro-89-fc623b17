@@ -1,0 +1,73 @@
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Component } from "@/types/components";
+
+interface ComponentDetailsProps {
+  component: Component | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function ComponentDetails({ component, isOpen, onClose }: ComponentDetailsProps) {
+  if (!component) return null;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">{component.Nombre}</DialogTitle>
+        </DialogHeader>
+        
+        <div className="mt-4 space-y-4">
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Imagen y precio */}
+            <div className="md:w-1/2">
+              <img
+                src={component.URL || "/placeholder.svg"}
+                alt={component.Nombre}
+                className="w-full h-auto rounded-lg object-cover"
+              />
+              <div className="mt-4 p-4 bg-muted rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Precios</h3>
+                {component.Precios.Nuevos && (
+                  <div className="flex justify-between items-center">
+                    <span>Nuevo:</span>
+                    <span className="text-xl font-bold text-primary">
+                      {component.Precios.Nuevos.Precio.valor} {component.Precios.Nuevos.Precio.moneda}
+                    </span>
+                  </div>
+                )}
+                {component.Precios.Utilizados && (
+                  <div className="flex justify-between items-center mt-2">
+                    <span>Usado:</span>
+                    <span className="text-lg text-muted-foreground">
+                      {component.Precios.Utilizados.Precio.valor} {component.Precios.Utilizados.Precio.moneda}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Características */}
+            <div className="md:w-1/2">
+              <h3 className="text-lg font-semibold mb-3">Características</h3>
+              <div className="space-y-2">
+                {Object.entries(component.Características).map(([key, value]) => (
+                  <div key={key} className="flex justify-between p-2 odd:bg-muted/50 rounded">
+                    <span className="font-medium">{key}:</span>
+                    <span>{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
