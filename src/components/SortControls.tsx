@@ -6,11 +6,20 @@ import { ArrowDownAZ, ArrowUpAZ, ArrowDownZA, ArrowUpZA } from "lucide-react";
 type SortOption = "nameAsc" | "nameDesc" | "priceAsc" | "priceDesc";
 
 interface SortControlsProps {
-  onSort: (option: SortOption) => void;
+  onSort: (option: SortOption | null) => void;
   currentSort: SortOption | null;
 }
 
 export function SortControls({ onSort, currentSort }: SortControlsProps) {
+  const handleSort = (option: SortOption) => {
+    // If the current sort is already the selected option, deselect it
+    if (currentSort === option) {
+      onSort(null);
+    } else {
+      onSort(option);
+    }
+  };
+
   return (
     <div className="flex gap-2 p-4 justify-center">
       <Tooltip>
@@ -18,7 +27,7 @@ export function SortControls({ onSort, currentSort }: SortControlsProps) {
           <Button
             variant={currentSort === "nameAsc" ? "default" : "outline"}
             size="icon"
-            onClick={() => onSort("nameAsc")}
+            onClick={() => handleSort("nameAsc")}
           >
             <ArrowDownAZ className="h-4 w-4" />
           </Button>
@@ -33,7 +42,7 @@ export function SortControls({ onSort, currentSort }: SortControlsProps) {
           <Button
             variant={currentSort === "nameDesc" ? "default" : "outline"}
             size="icon"
-            onClick={() => onSort("nameDesc")}
+            onClick={() => handleSort("nameDesc")}
           >
             <ArrowUpZA className="h-4 w-4" />
           </Button>
@@ -48,7 +57,7 @@ export function SortControls({ onSort, currentSort }: SortControlsProps) {
           <Button
             variant={currentSort === "priceAsc" ? "default" : "outline"}
             size="icon"
-            onClick={() => onSort("priceAsc")}
+            onClick={() => handleSort("priceAsc")}
           >
             <ArrowUpAZ className="h-4 w-4" />
           </Button>
@@ -63,7 +72,7 @@ export function SortControls({ onSort, currentSort }: SortControlsProps) {
           <Button
             variant={currentSort === "priceDesc" ? "default" : "outline"}
             size="icon"
-            onClick={() => onSort("priceDesc")}
+            onClick={() => handleSort("priceDesc")}
           >
             <ArrowDownZA className="h-4 w-4" />
           </Button>

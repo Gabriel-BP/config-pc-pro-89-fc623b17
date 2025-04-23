@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -25,6 +24,8 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
 
   const sortedComponents = useMemo(() => {
     if (!components) return [];
+    
+    if (!sortOption) return components;
     
     const componentsCopy = [...components];
     
