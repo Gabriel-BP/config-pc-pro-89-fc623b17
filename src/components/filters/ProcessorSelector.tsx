@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Cpu } from "lucide-react";
@@ -63,7 +62,7 @@ export default function ProcessorSelector({
           <img
             src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
             alt="Intel"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>Intel</span>
         </Button>
@@ -79,7 +78,7 @@ export default function ProcessorSelector({
           <img
             src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
             alt="AMD"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>AMD</span>
         </Button>

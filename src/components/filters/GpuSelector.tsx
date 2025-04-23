@@ -33,7 +33,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           <img
             src="/lovable-uploads/eb7c955a-2b19-4c80-8db4-46cd7f425fc0.png"
             alt="NVIDIA"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>NVIDIA</span>
         </Button>
@@ -49,7 +49,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           <img
             src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
             alt="AMD"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>AMD</span>
         </Button>

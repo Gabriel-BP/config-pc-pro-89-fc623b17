@@ -36,7 +36,7 @@ export default function MotherboardSelector({
           <img
             src="/placeholder.svg"
             alt="ATX"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>ATX</span>
         </Button>
@@ -52,7 +52,7 @@ export default function MotherboardSelector({
           <img
             src="/placeholder.svg"
             alt="Micro-ATX"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>Micro-ATX</span>
         </Button>
@@ -68,7 +68,7 @@ export default function MotherboardSelector({
           <img
             src="/placeholder.svg"
             alt="Mini-ITX"
-            className="w-12 h-12 object-cover rounded"
+            className="w-12 h-12 object-contain rounded"
           />
           <span>Mini-ITX</span>
         </Button>
