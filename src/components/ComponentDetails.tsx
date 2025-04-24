@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,27 @@ interface ComponentDetailsProps {
   onClose: () => void;
   onAddComponent: (component: Component) => void;
 }
+
+// Create the ProgressiveImage component here
+const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
+  const { loadedUrl, isLoading } = useProgressiveImage(url);
+  
+  return (
+    <>
+      {isLoading ? (
+        <div className="h-64 w-full animate-pulse bg-gray-200 rounded-lg" />
+      ) : (
+        <img
+          src={loadedUrl}
+          alt={alt}
+          className="w-full h-auto rounded-lg object-cover"
+          loading="eager"
+          crossOrigin="anonymous"
+        />
+      )}
+    </>
+  );
+};
 
 export function ComponentDetails({ 
   component, 
