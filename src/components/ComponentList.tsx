@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -14,6 +15,8 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useProgressiveImage } from '@/hooks/useProgressiveImage';
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle } from "lucide-react";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -106,22 +109,31 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
   }
 
   const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
-    const { loadedUrl, isLoading } = useProgressiveImage(url);
+    const { loadedUrl, isLoading, error } = useProgressiveImage(url);
+    
+    if (isLoading) {
+      return <Skeleton className="h-32 w-full rounded" />
+    }
+    
+    if (error) {
+      return (
+        <div className="h-32 w-full flex items-center justify-center bg-gray-100 rounded">
+          <div className="text-center text-gray-500">
+            <AlertTriangle className="h-8 w-8 mx-auto mb-1" />
+            <p className="text-xs">Error de imagen</p>
+          </div>
+        </div>
+      );
+    }
     
     return (
-      <>
-        {isLoading ? (
-          <div className="h-32 w-full animate-pulse bg-gray-200 rounded" />
-        ) : (
-          <img
-            src={loadedUrl}
-            alt={alt}
-            className="h-32 w-full object-contain mb-4 rounded"
-            loading="eager"
-            crossOrigin="anonymous"
-          />
-        )}
-      </>
+      <img
+        src={loadedUrl}
+        alt={alt}
+        className="h-32 w-full object-contain mb-4 rounded"
+        loading="lazy"
+        crossOrigin="anonymous"
+      />
     );
   };
 
