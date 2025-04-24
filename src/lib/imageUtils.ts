@@ -3,11 +3,12 @@
  * Utility for handling image URLs and proxying them to avoid CORS issues
  */
 
-// Lista de proxies CORS alternativos para usar en rotación
+// Updated CORS proxy list with more reliable services
 const CORS_PROXIES = [
   'https://corsproxy.io/?',
   'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere-jbdc.onrender.com/'
+  'https://cors-anywhere-jbdc.onrender.com/',
+  'https://cors-proxy.htmldriven.com/?url='
 ];
 
 let proxyIndex = 0;
@@ -32,13 +33,14 @@ export const getProxiedImageUrl = (url: string): string => {
     return url;
   }
   
+  // Ensure the URL is absolute
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return url;
+  }
+
   // Usar el proxy actual para la URL
   const proxy = getNextProxy();
   
-  // Para Amazon y otras URLs que suelen causar problemas CORS
-  if (url.includes('amazon') || url.includes('amzn') || url.includes('http')) {
-    return `${proxy}${encodeURIComponent(url)}`;
-  }
-
-  return url;
+  // Encode the URL for proxying, targeting specific domains that often cause CORS issues
+  return `${proxy}${encodeURIComponent(url)}`;
 };
