@@ -7,6 +7,13 @@ import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
 import { getProxiedImageUrl } from "@/lib/imageUtils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -18,6 +25,8 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 14;
 
   const { data: components, isLoading } = useQuery({
     queryKey: ["components", category, filters],
@@ -53,9 +62,31 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     }
   }, [components, sortOption]);
 
+  const paginatedComponents = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedComponents.slice(startIndex, endIndex);
+  }, [sortedComponents, currentPage]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil((sortedComponents?.length || 0) / itemsPerPage);
+  }, [sortedComponents]);
+
   const handleComponentClick = (component: Component) => {
     setSelectedComponent(component);
     setIsDetailsOpen(true);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
   };
 
   if (isLoading) {
@@ -79,7 +110,7 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
       <SortControls onSort={setSortOption} currentSort={sortOption} />
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {sortedComponents.map((component: Component) => (
+        {paginatedComponents.map((component: Component) => (
           <Card
             key={component._id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -89,7 +120,6 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
               <CardTitle className="text-lg">{component.Nombre}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Imagen del componente */}
               <img
                 src={getProxiedImageUrl(component.URL)}
                 alt={component.Nombre}
@@ -100,14 +130,37 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
               {component.Precios.Nuevos && (
                 <p className="text-xl font-bold text-blue-600">
-                  {component.Precios.Nuevos.Precio.valor}{" "}
-                  {component.Precios.Nuevos.Precio.moneda}
+                  {component.Precios.Nuevos.Precio.valor} {component.Precios.Nuevos.Precio.moneda}
                 </p>
               )}
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination className="my-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={handlePrevPage} 
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <span className="px-4 py-2">
+                Página {currentPage} de {totalPages}
+              </span>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext 
+                onClick={handleNextPage}
+                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       <ComponentDetails
         component={selectedComponent}
