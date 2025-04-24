@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
+import { ImageOff } from "lucide-react";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -16,6 +18,7 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   const { data: components, isLoading } = useQuery({
     queryKey: ["components", category, filters],
@@ -56,6 +59,14 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     setIsDetailsOpen(true);
   };
 
+  const handleImageError = (componentId: string) => {
+    console.log("Error loading thumbnail image:", componentId);
+    setImageErrors(prev => ({
+      ...prev,
+      [componentId]: true
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -87,6 +98,22 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
               <CardTitle className="text-lg">{component.Nombre}</CardTitle>
             </CardHeader>
             <CardContent>
+              {/* Thumbnail image */}
+              {imageErrors[component._id] ? (
+                <div className="h-32 bg-gray-100 rounded mb-4 flex items-center justify-center">
+                  <ImageOff className="h-8 w-8 text-gray-400" />
+                </div>
+              ) : (
+                <img
+                  src={component.URL}
+                  alt={component.Nombre}
+                  className="h-32 w-full object-contain mb-4 rounded"
+                  onError={() => handleImageError(component._id)}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                />
+              )}
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
               {component.Precios.Nuevos && (
                 <p className="text-xl font-bold text-blue-600">

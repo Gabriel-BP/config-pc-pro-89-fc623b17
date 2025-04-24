@@ -5,11 +5,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, ImageOff } from "lucide-react";
 import { Component } from "@/types/components";
 import { useState } from "react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -43,14 +45,27 @@ export function ComponentDetails({
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{component.Nombre}</DialogTitle>
+          <DialogDescription>
+            Detalles del componente y especificaciones
+          </DialogDescription>
         </DialogHeader>
         
         <div className="mt-4 space-y-4">
+          {imageError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Imagen no disponible</AlertTitle>
+              <AlertDescription>
+                No se ha podido cargar la imagen de este componente.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex flex-col md:flex-row gap-6">
             {/* Imagen y precio */}
             <div className="md:w-1/2">
               {imageError ? (
-                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center flex-col">
+                  <ImageOff className="h-12 w-12 text-gray-400 mb-2" />
                   <p className="text-gray-500">Imagen no disponible</p>
                 </div>
               ) : (
@@ -61,6 +76,7 @@ export function ComponentDetails({
                   onError={handleImageError}
                   loading="lazy"
                   referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
                 />
               )}
               <div className="mt-4 p-4 bg-muted rounded-lg">
