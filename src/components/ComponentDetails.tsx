@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
+import { useState } from "react";
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -23,11 +24,18 @@ export function ComponentDetails({
   onClose,
   onAddComponent 
 }: ComponentDetailsProps) {
+  const [imageError, setImageError] = useState(false);
+  
   if (!component) return null;
 
   const handleAddComponent = () => {
     onAddComponent(component);
     onClose();
+  };
+
+  const handleImageError = () => {
+    console.log("Error loading image:", component.URL);
+    setImageError(true);
   };
 
   return (
@@ -41,11 +49,20 @@ export function ComponentDetails({
           <div className="flex flex-col md:flex-row gap-6">
             {/* Imagen y precio */}
             <div className="md:w-1/2">
-              <img
-                src={component.URL || "/placeholder.svg"}
-                alt={component.Nombre}
-                className="w-full h-auto rounded-lg object-cover"
-              />
+              {imageError ? (
+                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <p className="text-gray-500">Imagen no disponible</p>
+                </div>
+              ) : (
+                <img
+                  src={component.URL}
+                  alt={component.Nombre}
+                  className="w-full h-auto rounded-lg object-cover"
+                  onError={handleImageError}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+              )}
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <h3 className="text-lg font-semibold mb-2">Precios</h3>
                 {component.Precios.Nuevos && (
