@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
+import { getProxiedImageUrl } from "@/lib/imageUtils";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -90,11 +91,11 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
             <CardContent>
               {/* Imagen del componente */}
               <img
-                src={component.URL}
+                src={getProxiedImageUrl(component.URL)}
                 alt={component.Nombre}
                 className="h-32 w-full object-contain mb-4 rounded"
-                referrerPolicy="no-referrer"
                 loading="eager"
+                crossOrigin="anonymous"
               />
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
               {component.Precios.Nuevos && (

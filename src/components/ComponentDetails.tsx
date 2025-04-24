@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
-import { useState } from "react";
+import { getProxiedImageUrl } from "@/lib/imageUtils";
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -48,11 +48,11 @@ export function ComponentDetails({
             {/* Imagen y precio */}
             <div className="md:w-1/2">
               <img
-                src={component.URL}
+                src={getProxiedImageUrl(component.URL)}
                 alt={component.Nombre}
                 className="w-full h-auto rounded-lg object-cover"
-                referrerPolicy="no-referrer"
                 loading="eager"
+                crossOrigin="anonymous"
               />
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <h3 className="text-lg font-semibold mb-2">Precios</h3>
