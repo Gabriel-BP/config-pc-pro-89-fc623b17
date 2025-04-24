@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -14,6 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -105,6 +105,26 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     );
   }
 
+  const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
+    const { loadedUrl, isLoading } = useProgressiveImage(url);
+    
+    return (
+      <>
+        {isLoading ? (
+          <div className="h-32 w-full animate-pulse bg-gray-200 rounded" />
+        ) : (
+          <img
+            src={loadedUrl}
+            alt={alt}
+            className="h-32 w-full object-contain mb-4 rounded"
+            loading="eager"
+            crossOrigin="anonymous"
+          />
+        )}
+      </>
+    );
+  };
+
   return (
     <>
       <SortControls onSort={setSortOption} currentSort={sortOption} />
@@ -120,12 +140,9 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
               <CardTitle className="text-lg">{component.Nombre}</CardTitle>
             </CardHeader>
             <CardContent>
-              <img
-                src={getProxiedImageUrl(component.URL)}
-                alt={component.Nombre}
-                className="h-32 w-full object-contain mb-4 rounded"
-                loading="eager"
-                crossOrigin="anonymous"
+              <ProgressiveImage 
+                url={component.URL} 
+                alt={component.Nombre} 
               />
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
               {component.Precios.Nuevos && (

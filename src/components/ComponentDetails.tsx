@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -11,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
 import { getProxiedImageUrl } from "@/lib/imageUtils";
+import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -47,12 +47,9 @@ export function ComponentDetails({
           <div className="flex flex-col md:flex-row gap-6">
             {/* Imagen y precio */}
             <div className="md:w-1/2">
-              <img
-                src={getProxiedImageUrl(component.URL)}
+              <ProgressiveImage 
+                url={component.URL} 
                 alt={component.Nombre}
-                className="w-full h-auto rounded-lg object-cover"
-                loading="eager"
-                crossOrigin="anonymous"
               />
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <h3 className="text-lg font-semibold mb-2">Precios</h3>
