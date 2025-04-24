@@ -40,6 +40,16 @@ export function ComponentDetails({
     setImageError(true);
   };
 
+  // Use a fallback image or a direct URL depending on the format
+  const getImageUrl = () => {
+    // If URL starts with https://m.media-amazon.com, use a proxy or placeholder
+    if (component.URL && component.URL.includes('amazon.com')) {
+      // Use placeholder image for amazon URLs which often have CORS issues
+      return `https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60`;
+    }
+    return component.URL;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -70,13 +80,11 @@ export function ComponentDetails({
                 </div>
               ) : (
                 <img
-                  src={component.URL}
+                  src={getImageUrl()}
                   alt={component.Nombre}
                   className="w-full h-auto rounded-lg object-cover"
                   onError={handleImageError}
                   loading="lazy"
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
                 />
               )}
               <div className="mt-4 p-4 bg-muted rounded-lg">

@@ -66,6 +66,16 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
       [componentId]: true
     }));
   };
+  
+  // Get a reliable image URL or fallback
+  const getImageUrl = (component: Component) => {
+    // If URL starts with https://m.media-amazon.com, use a proxy or placeholder
+    if (component.URL && component.URL.includes('amazon.com')) {
+      // Use placeholder image for amazon URLs which often have CORS issues
+      return `https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60`;
+    }
+    return component.URL;
+  };
 
   if (isLoading) {
     return (
@@ -105,13 +115,11 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
                 </div>
               ) : (
                 <img
-                  src={component.URL}
+                  src={getImageUrl(component)}
                   alt={component.Nombre}
                   className="h-32 w-full object-contain mb-4 rounded"
                   onError={() => handleImageError(component._id)}
                   loading="lazy"
-                  referrerPolicy="no-referrer"
-                  crossOrigin="anonymous"
                 />
               )}
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
