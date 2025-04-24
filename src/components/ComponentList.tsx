@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Image } from "lucide-react";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -67,14 +67,18 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     }));
   };
   
-  // Get a reliable image URL or fallback
-  const getImageUrl = (component: Component) => {
-    // If URL starts with https://m.media-amazon.com, use a proxy or placeholder
-    if (component.URL && component.URL.includes('amazon.com')) {
-      // Use placeholder image for amazon URLs which often have CORS issues
-      return `https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60`;
+  // Get category-specific placeholder images
+  const getPlaceholder = (category: string) => {
+    switch (category) {
+      case "cpu":
+        return "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=60";
+      case "gpu":
+        return "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=800&q=60";
+      case "motherboard":
+        return "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60";
+      default:
+        return "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=60";
     }
-    return component.URL;
   };
 
   if (isLoading) {
@@ -110,16 +114,23 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
             <CardContent>
               {/* Thumbnail image */}
               {imageErrors[component._id] ? (
-                <div className="h-32 bg-gray-100 rounded mb-4 flex items-center justify-center">
-                  <ImageOff className="h-8 w-8 text-gray-400" />
+                <div className="h-32 bg-gray-100 rounded mb-4 flex items-center justify-center flex-col">
+                  <Image className="h-8 w-8 text-gray-400 mb-1" />
+                  <p className="text-sm text-gray-500 mb-1">Usando placeholder</p>
+                  <img 
+                    src={getPlaceholder(component.categoria)} 
+                    alt="Placeholder" 
+                    className="h-20 w-full object-contain"
+                    loading="eager"
+                  />
                 </div>
               ) : (
                 <img
-                  src={getImageUrl(component)}
+                  src={component.URL || getPlaceholder(component.categoria)}
                   alt={component.Nombre}
                   className="h-32 w-full object-contain mb-4 rounded"
                   onError={() => handleImageError(component._id)}
-                  loading="lazy"
+                  loading="eager"
                 />
               )}
               <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>

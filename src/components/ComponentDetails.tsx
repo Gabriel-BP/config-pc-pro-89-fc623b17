@@ -8,7 +8,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, ImageOff } from "lucide-react";
+import { Plus, ImageOff, Image } from "lucide-react";
 import { Component } from "@/types/components";
 import { useState } from "react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -40,14 +40,20 @@ export function ComponentDetails({
     setImageError(true);
   };
 
-  // Use a fallback image or a direct URL depending on the format
-  const getImageUrl = () => {
-    // If URL starts with https://m.media-amazon.com, use a proxy or placeholder
-    if (component.URL && component.URL.includes('amazon.com')) {
-      // Use placeholder image for amazon URLs which often have CORS issues
-      return `https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60`;
+  // Use placeholder based on component category
+  const getPlaceholder = () => {
+    const category = component.categoria;
+    // Different placeholder for each category
+    switch (category) {
+      case "cpu":
+        return "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=60";
+      case "gpu":
+        return "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=800&q=60";
+      case "motherboard":
+        return "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=60";
+      default:
+        return "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=60";
     }
-    return component.URL;
   };
 
   return (
@@ -75,16 +81,22 @@ export function ComponentDetails({
             <div className="md:w-1/2">
               {imageError ? (
                 <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center flex-col">
-                  <ImageOff className="h-12 w-12 text-gray-400 mb-2" />
-                  <p className="text-gray-500">Imagen no disponible</p>
+                  <Image className="h-12 w-12 text-gray-400 mb-2" />
+                  <p className="text-gray-500">Usando imagen de placeholder</p>
+                  <img 
+                    src={getPlaceholder()} 
+                    alt="Placeholder" 
+                    className="w-full h-auto rounded-lg object-cover mt-2"
+                    loading="eager"
+                  />
                 </div>
               ) : (
                 <img
-                  src={getImageUrl()}
+                  src={component.URL || getPlaceholder()}
                   alt={component.Nombre}
                   className="w-full h-auto rounded-lg object-cover"
                   onError={handleImageError}
-                  loading="lazy"
+                  loading="eager"
                 />
               )}
               <div className="mt-4 p-4 bg-muted rounded-lg">
