@@ -30,6 +30,7 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("atx")}
           aria-label="ATX"
           title="ATX"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-purple-900 hover:to-purple-950"
         >
           <img
             src="/placeholder.svg"
@@ -43,6 +44,7 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("micro-atx")}
           aria-label="Micro-ATX"
           title="Micro-ATX"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-purple-900 hover:to-purple-950"
         >
           <img
             src="/placeholder.svg"
@@ -56,6 +58,7 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("mini-itx")}
           aria-label="Mini-ITX"
           title="Mini-ITX"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-purple-900 hover:to-purple-950"
         >
           <img
             src="/placeholder.svg"

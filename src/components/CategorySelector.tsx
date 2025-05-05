@@ -47,7 +47,16 @@ export function CategorySelector({
               key={category.id}
               variant={isSelected ? "filterSelected" : "filter"}
               size="filter"
-              className="flex flex-col items-center justify-center"
+              className={cn(
+                "flex flex-col items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700",
+                {
+                  "hover:from-blue-900 hover:to-blue-950": category.id === "cpu" || category.id === "memory",
+                  "hover:from-green-900 hover:to-green-950": category.id === "motherboard" || category.id === "storage",
+                  "hover:from-red-900 hover:to-red-950": category.id === "gpu",
+                  "hover:from-yellow-900 hover:to-yellow-950": category.id === "power-supply",
+                  "hover:from-purple-900 hover:to-purple-950": category.id === "case" || category.id === "cooler",
+                }
+              )}
               onClick={() => onSelectCategory(category.id as ComponentCategory)}
               aria-label={category.name}
               title={category.name}
