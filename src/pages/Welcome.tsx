@@ -1,7 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Cpu, HardDrive, Memory, Power, Monitor, Settings } from "lucide-react";
+import { Cpu, HardDrive, Microchip, Power, Monitor, Settings } from "lucide-react";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import { useEffect, useState } from "react";
 
@@ -22,7 +22,7 @@ export default function Welcome() {
         <div className={`absolute inset-0 pointer-events-none ${mounted ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`}>
           <Cpu className="absolute top-[15%] left-[10%] text-purple-400/30 h-12 w-12 animate-float" />
           <HardDrive className="absolute top-[25%] right-[15%] text-blue-400/30 h-16 w-16 animate-float-delayed" />
-          <Memory className="absolute bottom-[20%] left-[20%] text-indigo-400/30 h-14 w-14 animate-float" />
+          <Microchip className="absolute bottom-[20%] left-[20%] text-indigo-400/30 h-14 w-14 animate-float" />
           <Power className="absolute top-[40%] left-[25%] text-cyan-400/30 h-10 w-10 animate-float-delayed" />
           <Monitor className="absolute bottom-[30%] right-[10%] text-purple-400/30 h-16 w-16 animate-float" />
         </div>
