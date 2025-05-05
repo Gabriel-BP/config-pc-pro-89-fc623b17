@@ -1,21 +1,12 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
-import { getProxiedImageUrl } from "@/lib/imageUtils";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { useProgressiveImage } from '@/hooks/useProgressiveImage';
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle } from "lucide-react";
+import { ComponentGrid } from "./components/ComponentGrid";
+import { ComponentListPagination } from "./components/ComponentListPagination";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -99,95 +90,21 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     );
   }
 
-  if (!components || components.length === 0) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-gray-500">No se encontraron componentes con los filtros seleccionados</p>
-      </div>
-    );
-  }
-
-  const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
-    const { loadedUrl, isLoading, error } = useProgressiveImage(url);
-    
-    if (isLoading) {
-      return <Skeleton className="h-32 w-full rounded" />
-    }
-    
-    if (error) {
-      return (
-        <div className="h-32 w-full flex items-center justify-center bg-gray-100 rounded">
-          <div className="text-center text-gray-500">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-1" />
-            <p className="text-xs">Error de imagen</p>
-          </div>
-        </div>
-      );
-    }
-    
-    return (
-      <img
-        src={loadedUrl}
-        alt={alt}
-        className="h-32 w-full object-contain mb-4 rounded"
-        loading="lazy"
-      />
-    );
-  };
-
   return (
     <>
       <SortControls onSort={setSortOption} currentSort={sortOption} />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {paginatedComponents.map((component: Component) => (
-          <Card
-            key={component._id}
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => handleComponentClick(component)}
-          >
-            <CardHeader>
-              <CardTitle className="text-lg">{component.Nombre}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProgressiveImage 
-                url={component.URL} 
-                alt={component.Nombre} 
-              />
-              <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>
-              {component.Precios.Nuevos && (
-                <p className="text-xl font-bold text-blue-600">
-                  {component.Precios.Nuevos.Precio.valor} {component.Precios.Nuevos.Precio.moneda}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <ComponentGrid 
+        components={paginatedComponents} 
+        onComponentClick={handleComponentClick} 
+      />
 
-      {totalPages > 1 && (
-        <Pagination className="my-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={handlePrevPage} 
-                className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <span className="px-4 py-2">
-                Página {currentPage} de {totalPages}
-              </span>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext 
-                onClick={handleNextPage}
-                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <ComponentListPagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrevPage={handlePrevPage}
+        onNextPage={handleNextPage}
+      />
 
       <ComponentDetails
         component={selectedComponent}

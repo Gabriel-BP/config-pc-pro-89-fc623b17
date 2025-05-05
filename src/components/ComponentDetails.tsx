@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -7,11 +8,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, AlertTriangle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
-import { getProxiedImageUrl } from "@/lib/imageUtils";
-import { useProgressiveImage } from '@/hooks/useProgressiveImage';
-import { Skeleton } from "@/components/ui/skeleton";
+import { ProgressiveImage } from "./common/ProgressiveImage";
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -19,35 +18,6 @@ interface ComponentDetailsProps {
   onClose: () => void;
   onAddComponent: (component: Component) => void;
 }
-
-// Create the ProgressiveImage component here
-const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
-  const { loadedUrl, isLoading, error } = useProgressiveImage(url);
-  
-  if (isLoading) {
-    return <Skeleton className="h-64 w-full rounded-lg" />;
-  }
-  
-  if (error) {
-    return (
-      <div className="h-64 w-full flex items-center justify-center bg-gray-100 rounded-lg">
-        <div className="text-center text-gray-500">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-2" />
-          <p>No se pudo cargar la imagen</p>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <img
-      src={loadedUrl}
-      alt={alt}
-      className="w-full h-auto rounded-lg object-cover"
-      loading="eager"
-    />
-  );
-};
 
 export function ComponentDetails({ 
   component, 
@@ -80,6 +50,8 @@ export function ComponentDetails({
               <ProgressiveImage 
                 url={component.URL} 
                 alt={component.Nombre}
+                className="h-64 w-full"
+                objectFit="cover"
               />
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <h3 className="text-lg font-semibold mb-2">Precios</h3>
