@@ -1,3 +1,4 @@
+
 import {
   Dialog,
   DialogContent,
@@ -34,7 +35,7 @@ export function ComponentDetails({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">{component.Nombre}</DialogTitle>
           <DialogDescription>
@@ -76,6 +77,13 @@ export function ComponentDetails({
 
             {/* Características */}
             <div className="md:w-1/2">
+              {component.Descripción && (
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Descripción</h3>
+                  <p className="text-sm text-muted-foreground">{component.Descripción}</p>
+                </div>
+              )}
+              
               <h3 className="text-lg font-semibold mb-3">Características</h3>
               <div className="space-y-2">
                 {Object.entries(component.Características).map(([key, value]) => (
