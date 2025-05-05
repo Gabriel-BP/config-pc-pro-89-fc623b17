@@ -1,7 +1,8 @@
 
 import { Component } from "@/types/components";
 import { Button } from "@/components/ui/button";
-import { Trash, Plus, Minus } from "lucide-react";
+import { Trash, Plus, Minus, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ export function BuildSummary({
   selectedComponents,
   onRemoveComponent,
 }: BuildSummaryProps) {
+  const navigate = useNavigate();
   const [quantities, setQuantities] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
     Object.keys(selectedComponents).forEach(category => {
@@ -116,6 +118,23 @@ export function BuildSummary({
             </TableRow>
           </TableBody>
         </Table>
+        
+        <div className="mt-6 flex justify-end">
+          <Button 
+            onClick={() => navigate('/validation')}
+            className="
+              bg-gradient-to-r from-blue-600 to-purple-600
+              hover:from-blue-700 hover:to-purple-700
+              text-white px-6 py-2 rounded-lg
+              shadow-[0_0_15px_rgba(66,153,225,0.5)]
+              hover:shadow-[0_0_25px_rgba(66,153,225,0.8)]
+              transition-all duration-300
+            "
+          >
+            <CheckCircle className="mr-2 h-5 w-5" />
+            Validar
+          </Button>
+        </div>
       </div>
     </div>
   );
