@@ -22,6 +22,7 @@ export interface Component {
   Precios: Prices;
   categoria: string;
   URL: string;
+  Imagen?: string; // Added Imagen field which contains the Amazon image URL
 }
 
 export type ComponentCategory =

@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -48,11 +47,12 @@ export function ComponentDetails({
             {/* Imagen y precio */}
             <div className="md:w-1/2">
               <ProgressiveImage 
-                url={component.URL} 
+                url={component.Imagen || component.URL} 
                 alt={component.Nombre}
                 className="h-64 w-full"
                 objectFit="cover"
               />
+              
               <div className="mt-4 p-4 bg-muted rounded-lg">
                 <h3 className="text-lg font-semibold mb-2">Precios</h3>
                 {component.Precios.Nuevos && (

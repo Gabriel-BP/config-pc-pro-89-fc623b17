@@ -20,7 +20,7 @@ export function ComponentCard({ component, onClick }: ComponentCardProps) {
       </CardHeader>
       <CardContent>
         <ProgressiveImage 
-          url={component.URL} 
+          url={component.Imagen || component.URL} 
           alt={component.Nombre} 
         />
         <p className="text-gray-600 mb-2">Marca: {component.Marca}</p>

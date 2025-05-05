@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getProxiedImageUrl } from '@/lib/imageUtils';
+import { getProxiedImageUrl, extractFilenameFromUrl } from '@/lib/imageUtils';
 
 interface ProgressiveImageState {
   loadedUrl: string;
@@ -24,8 +24,17 @@ export const useProgressiveImage = (url: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: false }));
     let isMounted = true;
     
+    // Get the filename from the URL
+    const filename = extractFilenameFromUrl(url);
+    
     // Get the local image URL
     const localImageUrl = getProxiedImageUrl(url);
+    
+    console.log('Loading image:', {
+      originalUrl: url,
+      extractedFilename: filename,
+      localPath: localImageUrl
+    });
     
     // Create an Image object to preload
     const img = new Image();
@@ -38,7 +47,12 @@ export const useProgressiveImage = (url: string) => {
     
     img.onerror = () => {
       if (isMounted) {
-        console.error('Error al cargar imagen local:', localImageUrl);
+        console.error('Error al cargar imagen:', {
+          originalUrl: url,
+          localPath: localImageUrl,
+          filename: filename
+        });
+        
         setState({ 
           loadedUrl: '/placeholder.svg', 
           isLoading: false, 

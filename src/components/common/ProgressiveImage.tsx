@@ -2,6 +2,7 @@
 import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle } from "lucide-react";
+import { extractFilenameFromUrl } from '@/lib/imageUtils';
 
 interface ProgressiveImageProps {
   url: string;
@@ -28,6 +29,7 @@ export function ProgressiveImage({
         <div className="text-center text-gray-500">
           <AlertTriangle className="h-8 w-8 mx-auto mb-1" />
           <p className="text-xs">Error de imagen</p>
+          <p className="text-xs truncate max-w-32">{extractFilenameFromUrl(url)}</p>
         </div>
       </div>
     );
