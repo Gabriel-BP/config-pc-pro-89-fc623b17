@@ -33,31 +33,30 @@ export function CategorySelector({
   onSelectCategory,
 }: CategorySelectorProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-      {categories.map((category) => {
-        const Icon = category.icon;
-        const isSelected = selectedCategory === category.id;
-        
-        return (
-          <Button
-            key={category.id}
-            variant="outline"
-            className={cn(
-              "h-24 flex flex-col items-center justify-center gap-2 transition-all",
-              isSelected
-                ? "bg-blue-50 border-blue-500 text-blue-700"
-                : "hover:bg-gray-50/10"
-            )}
-            onClick={() => onSelectCategory(category.id as ComponentCategory)}
-          >
-            <Icon className="w-6 h-6" />
-            <span className="text-sm font-medium">{category.name}</span>
-            {isSelected && (
-              <span className="text-xs font-light">(Click para deseleccionar)</span>
-            )}
-          </Button>
-        );
-      })}
+    <div className="p-4">
+      <h2 className="text-2xl font-semibold flex items-center gap-2 text-white mb-6">
+        Categorías
+      </h2>
+      <div className="flex flex-wrap justify-center gap-4">
+        {categories.map((category) => {
+          const Icon = category.icon;
+          const isSelected = selectedCategory === category.id;
+          
+          return (
+            <Button
+              key={category.id}
+              variant={isSelected ? "filterSelected" : "filter"}
+              size="filter"
+              className="flex flex-col items-center justify-center"
+              onClick={() => onSelectCategory(category.id as ComponentCategory)}
+              aria-label={category.name}
+              title={category.name}
+            >
+              <Icon className="w-8 h-8" />
+            </Button>
+          );
+        })}
+      </div>
     </div>
   );
 }

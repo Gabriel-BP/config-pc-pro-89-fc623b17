@@ -23,54 +23,45 @@ export default function MotherboardSelector({
         <Square className="w-6 h-6" />
         Tamaño de Placa Base
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="flex justify-center gap-4">
         <Button
-          variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-            motherboardSize === "atx"
-              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/70"
-          }`}
+          variant={motherboardSize === "atx" ? "filterSelected" : "filter"}
+          size="filter"
           onClick={() => handleMotherboardSizeChange("atx")}
+          aria-label="ATX"
+          title="ATX"
         >
           <img
             src="/placeholder.svg"
             alt="ATX"
             className="w-12 h-12 object-contain rounded"
           />
-          <span>ATX</span>
         </Button>
         <Button
-          variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-            motherboardSize === "micro-atx"
-              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/70"
-          }`}
+          variant={motherboardSize === "micro-atx" ? "filterSelected" : "filter"}
+          size="filter"
           onClick={() => handleMotherboardSizeChange("micro-atx")}
+          aria-label="Micro-ATX"
+          title="Micro-ATX"
         >
           <img
             src="/placeholder.svg"
             alt="Micro-ATX"
             className="w-12 h-12 object-contain rounded"
           />
-          <span>Micro-ATX</span>
         </Button>
         <Button
-          variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-            motherboardSize === "mini-itx"
-              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/70"
-          }`}
+          variant={motherboardSize === "mini-itx" ? "filterSelected" : "filter"}
+          size="filter"
           onClick={() => handleMotherboardSizeChange("mini-itx")}
+          aria-label="Mini-ITX"
+          title="Mini-ITX"
         >
           <img
             src="/placeholder.svg"
             alt="Mini-ITX"
             className="w-12 h-12 object-contain rounded"
           />
-          <span>Mini-ITX</span>
         </Button>
       </div>
     </div>

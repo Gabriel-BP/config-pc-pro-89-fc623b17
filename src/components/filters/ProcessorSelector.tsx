@@ -50,38 +50,32 @@ export default function ProcessorSelector({
         <Cpu className="w-6 h-6" />
         Procesador
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="flex justify-center gap-4">
         <Button
-          variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-            processorBrand === "intel"
-              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/70"
-          }`}
+          variant={processorBrand === "intel" ? "filterSelected" : "filter"}
+          size="filter"
           onClick={() => handleProcessorBrandChange("intel")}
+          aria-label="Intel"
+          title="Intel"
         >
           <img
             src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
             alt="Intel"
             className="w-12 h-12 object-contain rounded"
           />
-          <span>Intel</span>
         </Button>
         <Button
-          variant="outline"
-          className={`h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-            processorBrand === "amd"
-              ? "bg-blue-900/50 border-blue-500 text-blue-300"
-              : "hover:bg-gray-800/70"
-          }`}
+          variant={processorBrand === "amd" ? "filterSelected" : "filter"}
+          size="filter"
           onClick={() => handleProcessorBrandChange("amd")}
+          aria-label="AMD"
+          title="AMD"
         >
           <img
             src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
             alt="AMD"
             className="w-12 h-12 object-contain rounded"
           />
-          <span>AMD</span>
         </Button>
       </div>
 
@@ -92,97 +86,87 @@ export default function ProcessorSelector({
           }`}
         >
           <h3 className="text-xl font-medium text-white">Socket</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             {processorBrand === "amd" ? (
               <>
                 <Button
-                  variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-                    socket === "am4"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/70"
-                  }`}
+                  variant={socket === "am4" ? "filterSelected" : "filter"}
+                  size="filter"
+                  className="animate-scale-in"
                   onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
+                  aria-label="AM4"
+                  title="AM4"
                 >
                   <img
                     src="/placeholder.svg"
                     alt="AM4"
                     className="w-12 h-12 object-contain rounded"
                   />
-                  <span>AM4</span>
                 </Button>
                 <Button
-                  variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-                    socket === "am5"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/70"
-                  }`}
+                  variant={socket === "am5" ? "filterSelected" : "filter"}
+                  size="filter"
+                  className="animate-scale-in"
                   onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
+                  aria-label="AM5"
+                  title="AM5"
                 >
                   <img
                     src="/placeholder.svg"
                     alt="AM5"
                     className="w-12 h-12 object-contain rounded"
                   />
-                  <span>AM5</span>
                 </Button>
               </>
             ) : (
               <>
                 <Button
-                  variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-                    socket === "lga1200"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/70"
-                  }`}
+                  variant={socket === "lga1200" ? "filterSelected" : "filter"}
+                  size="filter"
+                  className="animate-scale-in"
                   onClick={() =>
                     onSocketChange(socket === "lga1200" ? null : "lga1200")
                   }
+                  aria-label="LGA 1200"
+                  title="LGA 1200"
                 >
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1200"
                     className="w-12 h-12 object-contain rounded"
                   />
-                  <span>LGA 1200</span>
                 </Button>
                 <Button
-                  variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-                    socket === "lga1700"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/70"
-                  }`}
+                  variant={socket === "lga1700" ? "filterSelected" : "filter"}
+                  size="filter"
+                  className="animate-scale-in"
                   onClick={() =>
                     onSocketChange(socket === "lga1700" ? null : "lga1700")
                   }
+                  aria-label="LGA 1700"
+                  title="LGA 1700"
                 >
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1700"
                     className="w-12 h-12 object-contain rounded"
                   />
-                  <span>LGA 1700</span>
                 </Button>
                 <Button
-                  variant="outline"
-                  className={`animate-scale-in h-24 flex flex-col items-center justify-center gap-2 transition-all bg-gray-900/50 border-gray-800 ${
-                    socket === "lga1851"
-                      ? "bg-blue-900/50 border-blue-500 text-blue-300"
-                      : "hover:bg-gray-800/70"
-                  }`}
+                  variant={socket === "lga1851" ? "filterSelected" : "filter"}
+                  size="filter"
+                  className="animate-scale-in"
                   onClick={() =>
                     onSocketChange(socket === "lga1851" ? null : "lga1851")
                   }
+                  aria-label="LGA 1851"
+                  title="LGA 1851"
                 >
                   <img
                     src="/placeholder.svg"
                     alt="LGA 1851"
                     className="w-12 h-12 object-contain rounded"
                   />
-                  <span>LGA 1851</span>
                 </Button>
               </>
             )}
