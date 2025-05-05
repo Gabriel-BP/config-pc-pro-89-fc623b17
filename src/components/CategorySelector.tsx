@@ -48,7 +48,7 @@ export function CategorySelector({
               variant={isSelected ? "filterSelected" : "filter"}
               size="filter"
               className={cn(
-                "flex flex-col items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700",
+                "flex flex-col items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900",
                 {
                   "hover:from-blue-900 hover:to-blue-950": category.id === "cpu" || category.id === "memory",
                   "hover:from-green-900 hover:to-green-950": category.id === "motherboard" || category.id === "storage",

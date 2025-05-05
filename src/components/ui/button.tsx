@@ -19,8 +19,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        filter: "bg-gray-900/50 border-gray-800 hover:bg-gray-800/70 transition-all shadow-md",
-        filterSelected: "bg-blue-900/70 border-blue-500 text-blue-300 transition-all shadow-lg glow-effect",
+        filter: "bg-gray-900/70 border border-gray-700 hover:bg-gray-800/80 transition-all shadow-md",
+        filterSelected: "bg-blue-600/80 border-2 border-blue-400 text-blue-100 transition-all shadow-lg glow-effect scale-105",
       },
       size: {
         default: "h-10 px-4 py-2",

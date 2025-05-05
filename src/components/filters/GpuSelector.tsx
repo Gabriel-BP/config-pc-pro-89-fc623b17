@@ -27,7 +27,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           onClick={() => handleGpuBrandChange("nvidia")}
           aria-label="NVIDIA"
           title="NVIDIA"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-blue-900 hover:to-blue-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-green-900 hover:to-green-950"
         >
           <img
             src="/lovable-uploads/eb7c955a-2b19-4c80-8db4-46cd7f425fc0.png"
@@ -41,7 +41,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
           onClick={() => handleGpuBrandChange("amd")}
           aria-label="AMD"
           title="AMD"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-red-900 hover:to-red-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
         >
           <img
             src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"

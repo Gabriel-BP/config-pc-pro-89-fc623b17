@@ -57,7 +57,7 @@ export default function ProcessorSelector({
           onClick={() => handleProcessorBrandChange("intel")}
           aria-label="Intel"
           title="Intel"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-blue-900 hover:to-blue-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
         >
           <img
             src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
@@ -71,7 +71,7 @@ export default function ProcessorSelector({
           onClick={() => handleProcessorBrandChange("amd")}
           aria-label="AMD"
           title="AMD"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-red-900 hover:to-red-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
         >
           <img
             src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
@@ -94,7 +94,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "am4" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-red-900 hover:to-red-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
                   onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
                   aria-label="AM4"
                   title="AM4"
@@ -108,7 +108,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "am5" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-red-900 hover:to-red-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
                   onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
                   aria-label="AM5"
                   title="AM5"
@@ -125,7 +125,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "lga1200" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
                   onClick={() =>
                     onSocketChange(socket === "lga1200" ? null : "lga1200")
                   }
@@ -141,7 +141,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "lga1700" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
                   onClick={() =>
                     onSocketChange(socket === "lga1700" ? null : "lga1700")
                   }
@@ -157,7 +157,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "lga1851" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg border-gray-700 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
                   onClick={() =>
                     onSocketChange(socket === "lga1851" ? null : "lga1851")
                   }
