@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -132,7 +131,6 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
         alt={alt}
         className="h-32 w-full object-contain mb-4 rounded"
         loading="lazy"
-        crossOrigin="anonymous"
       />
     );
   };

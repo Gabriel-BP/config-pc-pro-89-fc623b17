@@ -20,27 +20,35 @@ const getNextProxy = (): string => {
   return proxy;
 };
 
-// Use a CORS proxy to bypass the CORS restrictions
+// Function to extract the filename from a URL
+const extractFilenameFromUrl = (url: string): string => {
+  if (!url || typeof url !== 'string') {
+    return '';
+  }
+  
+  // Extract the filename from the URL path
+  const urlParts = url.split('/');
+  return urlParts[urlParts.length - 1];
+};
+
+// Use local images from imagenes_descargadas folder or fallback to CORS proxy
 export const getProxiedImageUrl = (url: string): string => {
   // Make sure the URL is valid
   if (!url || typeof url !== 'string') {
     return '';
   }
 
-  // Si es una URL relativa o ya tiene un proxy, devuélvela tal cual
-  if (url.startsWith('/') || url.startsWith('data:') || 
-      CORS_PROXIES.some(proxy => url.includes(proxy))) {
+  // If it's a relative URL or data URL, return as is
+  if (url.startsWith('/') || url.startsWith('data:')) {
     return url;
   }
   
-  // Ensure the URL is absolute
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return url;
+  // Extract the filename from the URL and use the local version
+  const filename = extractFilenameFromUrl(url);
+  if (filename) {
+    return `/imagenes_descargadas/${filename}`;
   }
-
-  // Usar el proxy actual para la URL
-  const proxy = getNextProxy();
   
-  // Encode the URL for proxying, targeting specific domains that often cause CORS issues
-  return `${proxy}${encodeURIComponent(url)}`;
+  // If we couldn't extract a filename, fall back to the original URL
+  return url;
 };

@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -46,7 +45,6 @@ const ProgressiveImage = ({ url, alt }: { url: string; alt: string }) => {
       alt={alt}
       className="w-full h-auto rounded-lg object-cover"
       loading="eager"
-      crossOrigin="anonymous"
     />
   );
 };
