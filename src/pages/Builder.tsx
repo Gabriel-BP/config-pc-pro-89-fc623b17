@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Component, ComponentCategory } from "@/types/components";
 import { CategorySelector } from "@/components/CategorySelector";
@@ -14,12 +13,9 @@ export default function Builder() {
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | null>(
     null
   );
-  const [selectedComponents, setSelectedComponents] = useState<
-    Partial<Record<ComponentCategory, Component>>
-  >({});
   
-  // Get filters from context
-  const { filters } = useFilters();
+  // Get filters and selectedComponents from context
+  const { filters, selectedComponents, setSelectedComponents } = useFilters();
 
   const handleSelectComponent = (component: Component) => {
     setSelectedComponents((prev) => ({
