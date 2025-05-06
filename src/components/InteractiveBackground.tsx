@@ -50,12 +50,15 @@ const InteractiveBackground: React.FC = () => {
       const moveY = relativeY * 12 - 6; // -6 to 6
 
       // Update gradient position with tech-themed colors
+      // Reduce the gradient size by approximately 80%
+      // Original: circle at ${clientX}px ${clientY}px, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.1) 20%, transparent 60%
+      // Make it much smaller by reducing the percentages
       backgroundRef.current.style.background = `
         radial-gradient(
           circle at ${clientX}px ${clientY}px,
           rgba(99, 102, 241, 0.2) 0%,
-          rgba(99, 102, 241, 0.1) 20%,
-          transparent 60%
+          rgba(99, 102, 241, 0.1) 4%,
+          transparent 12%
         ),
         linear-gradient(135deg, #1A1F2C 0%, #0f1117 100%)
       `;
