@@ -33,7 +33,9 @@ export default function MotherboardSelector({
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
           <div className="flex flex-col items-center">
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">ATX</span>
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-white to-gray-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+              textShadow: "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.2)"
+            }}>ATX</span>
           </div>
         </Button>
         <Button
@@ -45,7 +47,9 @@ export default function MotherboardSelector({
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
           <div className="flex flex-col items-center">
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">MICRO-ATX</span>
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-white to-gray-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+              textShadow: "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.2)"
+            }}>MICRO-ATX</span>
           </div>
         </Button>
         <Button
@@ -57,7 +61,9 @@ export default function MotherboardSelector({
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
           <div className="flex flex-col items-center">
-            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">MINI-ITX</span>
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-white to-gray-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+              textShadow: "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.2)"
+            }}>MINI-ITX</span>
           </div>
         </Button>
       </div>
