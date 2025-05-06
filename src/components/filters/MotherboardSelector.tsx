@@ -30,13 +30,11 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("atx")}
           aria-label="ATX"
           title="ATX"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
-          <img
-            src="/placeholder.svg"
-            alt="ATX"
-            className="w-12 h-12 object-contain rounded"
-          />
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">ATX</span>
+          </div>
         </Button>
         <Button
           variant={motherboardSize === "micro-atx" ? "filterSelected" : "filter"}
@@ -44,13 +42,11 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("micro-atx")}
           aria-label="Micro-ATX"
           title="Micro-ATX"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
-          <img
-            src="/placeholder.svg"
-            alt="Micro-ATX"
-            className="w-12 h-12 object-contain rounded"
-          />
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">MICRO-ATX</span>
+          </div>
         </Button>
         <Button
           variant={motherboardSize === "mini-itx" ? "filterSelected" : "filter"}
@@ -58,13 +54,11 @@ export default function MotherboardSelector({
           onClick={() => handleMotherboardSizeChange("mini-itx")}
           aria-label="Mini-ITX"
           title="Mini-ITX"
-          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950"
+          className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
         >
-          <img
-            src="/placeholder.svg"
-            alt="Mini-ITX"
-            className="w-12 h-12 object-contain rounded"
-          />
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">MINI-ITX</span>
+          </div>
         </Button>
       </div>
     </div>

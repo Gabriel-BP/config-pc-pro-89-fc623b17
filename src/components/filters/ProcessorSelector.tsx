@@ -44,6 +44,16 @@ export default function ProcessorSelector({
     }
   };
 
+  // Get the image src based on the selected brand
+  const getBrandImage = () => {
+    if (processorBrand === "intel") {
+      return "/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png";
+    } else if (processorBrand === "amd") {
+      return "/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png";
+    }
+    return "";
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
@@ -94,30 +104,32 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "am4" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
                   onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
                   aria-label="AM4"
                   title="AM4"
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt="AM4"
-                    className="w-12 h-12 object-contain rounded"
+                    src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
+                    alt="AMD"
+                    className="w-8 h-8 object-contain rounded mb-1"
                   />
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM4</span>
                 </Button>
                 <Button
                   variant={socket === "am5" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
                   onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
                   aria-label="AM5"
                   title="AM5"
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt="AM5"
-                    className="w-12 h-12 object-contain rounded"
+                    src="/lovable-uploads/0d1ae45f-66d1-4e6f-b423-4217b0ac0685.png"
+                    alt="AMD"
+                    className="w-8 h-8 object-contain rounded mb-1"
                   />
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM5</span>
                 </Button>
               </>
             ) : (
@@ -125,7 +137,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "lga1200" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1200" ? null : "lga1200")
                   }
@@ -133,15 +145,16 @@ export default function ProcessorSelector({
                   title="LGA 1200"
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt="LGA 1200"
-                    className="w-12 h-12 object-contain rounded"
+                    src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
+                    alt="Intel"
+                    className="w-8 h-8 object-contain rounded mb-1"
                   />
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1200</span>
                 </Button>
                 <Button
                   variant={socket === "lga1700" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1700" ? null : "lga1700")
                   }
@@ -149,15 +162,16 @@ export default function ProcessorSelector({
                   title="LGA 1700"
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt="LGA 1700"
-                    className="w-12 h-12 object-contain rounded"
+                    src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
+                    alt="Intel"
+                    className="w-8 h-8 object-contain rounded mb-1"
                   />
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1700</span>
                 </Button>
                 <Button
                   variant={socket === "lga1851" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
+                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1851" ? null : "lga1851")
                   }
@@ -165,10 +179,11 @@ export default function ProcessorSelector({
                   title="LGA 1851"
                 >
                   <img
-                    src="/placeholder.svg"
-                    alt="LGA 1851"
-                    className="w-12 h-12 object-contain rounded"
+                    src="/lovable-uploads/117c9ab0-96d1-4b66-a0a9-ac8af9ecdc52.png"
+                    alt="Intel"
+                    className="w-8 h-8 object-contain rounded mb-1"
                   />
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1851</span>
                 </Button>
               </>
             )}
