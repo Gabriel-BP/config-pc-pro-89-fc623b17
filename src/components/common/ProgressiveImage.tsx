@@ -1,7 +1,7 @@
 
 import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, HelpCircle } from "lucide-react";
 import { extractFilenameFromUrl } from '@/lib/imageUtils';
 
 interface ProgressiveImageProps {
@@ -27,7 +27,9 @@ export function ProgressiveImage({
     return (
       <div className={`${className} flex items-center justify-center bg-gray-100 rounded`}>
         <div className="text-center text-gray-500">
-          <AlertTriangle className="h-8 w-8 mx-auto mb-1" />
+          <div className="flex justify-center mb-1">
+            <HelpCircle className="h-8 w-8" />
+          </div>
           <p className="text-xs">Error de imagen</p>
           <p className="text-xs truncate max-w-32">{extractFilenameFromUrl(url)}</p>
         </div>

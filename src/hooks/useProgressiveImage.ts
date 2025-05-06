@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getProxiedImageUrl, extractFilenameFromUrl } from '@/lib/imageUtils';
+import { getProxiedImageUrl, extractFilenameFromUrl, transformFilename } from '@/lib/imageUtils';
 
 interface ProgressiveImageState {
   loadedUrl: string;
@@ -24,44 +24,56 @@ export const useProgressiveImage = (url: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: false }));
     let isMounted = true;
     
-    // Get the filename from the URL
-    const filename = extractFilenameFromUrl(url);
+    // Try loading with original filename
+    const tryLoadImage = (imageUrl: string, attemptWithTransformedFilename = false) => {
+      // Create an Image object to preload
+      const img = new Image();
+      
+      img.onload = () => {
+        if (isMounted) {
+          setState({ loadedUrl: imageUrl, isLoading: false, error: false });
+        }
+      };
+      
+      img.onerror = () => {
+        if (isMounted) {
+          if (!attemptWithTransformedFilename) {
+            // First attempt failed, try with transformed filename (+ -> _)
+            const transformedUrl = getProxiedImageUrl(url, true);
+            console.log('First attempt failed, trying transformed filename:', {
+              originalUrl: url,
+              transformedUrl
+            });
+            tryLoadImage(transformedUrl, true);
+          } else {
+            // Both attempts failed, use placeholder
+            console.error('All image loading attempts failed:', {
+              originalUrl: url,
+              fallbackPath: '/placeholder.svg'
+            });
+            setState({ 
+              loadedUrl: '/placeholder.svg', 
+              isLoading: false, 
+              error: true 
+            });
+          }
+        }
+      };
+      
+      img.src = imageUrl;
+    };
     
-    // Get the local image URL
-    const localImageUrl = getProxiedImageUrl(url);
+    // Get the local image URL with original filename
+    const localImageUrl = getProxiedImageUrl(url, false);
     
-    console.log('Loading image:', {
+    console.log('Attempting to load image:', {
       originalUrl: url,
-      extractedFilename: filename,
+      extractedFilename: extractFilenameFromUrl(url),
       localPath: localImageUrl
     });
     
-    // Create an Image object to preload
-    const img = new Image();
-    
-    img.onload = () => {
-      if (isMounted) {
-        setState({ loadedUrl: localImageUrl, isLoading: false, error: false });
-      }
-    };
-    
-    img.onerror = () => {
-      if (isMounted) {
-        console.error('Error al cargar imagen:', {
-          originalUrl: url,
-          localPath: localImageUrl,
-          filename: filename
-        });
-        
-        setState({ 
-          loadedUrl: '/placeholder.svg', 
-          isLoading: false, 
-          error: true 
-        });
-      }
-    };
-    
-    img.src = localImageUrl;
+    // Try loading the image with original filename first
+    tryLoadImage(localImageUrl);
     
     return () => {
       isMounted = false;

@@ -24,8 +24,13 @@ export const extractFilenameFromUrl = (url: string): string => {
   }
 };
 
+// Transform filename by replacing "+" with "_" for better compatibility
+export const transformFilename = (filename: string): string => {
+  return filename.replace(/\+/g, '_');
+};
+
 // Get the local image path from the downloaded images folder
-export const getProxiedImageUrl = (url: string): string => {
+export const getProxiedImageUrl = (url: string, transformFilename = false): string => {
   // Make sure the URL is valid
   if (!url || typeof url !== 'string') {
     return '/placeholder.svg';
@@ -36,8 +41,13 @@ export const getProxiedImageUrl = (url: string): string => {
     return url;
   }
   
-  // Extract the filename from the URL and use the local version
-  const filename = extractFilenameFromUrl(url);
+  // Extract the filename from the URL
+  let filename = extractFilenameFromUrl(url);
+  
+  // Transform the filename if requested (replace "+" with "_")
+  if (transformFilename && filename) {
+    filename = filename.replace(/\+/g, '_');
+  }
   
   if (filename) {
     return `/imagenes_descargadas/${filename}`;
