@@ -114,7 +114,10 @@ export default function ProcessorSelector({
                     alt="AMD"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM4</span>
+                  <span className="text-sm font-bold">
+                    <span className="bg-gradient-to-b from-orange-500 via-orange-300 to-black bg-clip-text text-transparent font-bold">AM</span>
+                    <span className="bg-gradient-to-b from-orange-500 via-orange-300 to-black bg-clip-text text-transparent font-bold">4</span>
+                  </span>
                 </Button>
                 <Button
                   variant={socket === "am5" ? "filterSelected" : "filter"}
@@ -129,7 +132,10 @@ export default function ProcessorSelector({
                     alt="AMD"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM5</span>
+                  <span className="text-sm font-bold">
+                    <span className="bg-gradient-to-b from-orange-500 via-orange-300 to-black bg-clip-text text-transparent font-bold">AM</span>
+                    <span className="bg-gradient-to-b from-orange-500 via-orange-300 to-black bg-clip-text text-transparent font-bold">5</span>
+                  </span>
                 </Button>
               </>
             ) : (
@@ -149,7 +155,10 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1200</span>
+                  <span className="text-sm font-bold">
+                    <span className="bg-gradient-to-b from-blue-500 via-blue-300 to-blue-700 bg-clip-text text-transparent font-bold">LGA</span>
+                    <span className="text-gray-200"> 1200</span>
+                  </span>
                 </Button>
                 <Button
                   variant={socket === "lga1700" ? "filterSelected" : "filter"}
@@ -166,7 +175,10 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1700</span>
+                  <span className="text-sm font-bold">
+                    <span className="bg-gradient-to-b from-blue-500 via-blue-300 to-blue-700 bg-clip-text text-transparent font-bold">LGA</span>
+                    <span className="text-gray-200"> 1700</span>
+                  </span>
                 </Button>
                 <Button
                   variant={socket === "lga1851" ? "filterSelected" : "filter"}
@@ -183,7 +195,10 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1851</span>
+                  <span className="text-sm font-bold">
+                    <span className="bg-gradient-to-b from-blue-500 via-blue-300 to-blue-700 bg-clip-text text-transparent font-bold">LGA</span>
+                    <span className="text-gray-200"> 1851</span>
+                  </span>
                 </Button>
               </>
             )}
