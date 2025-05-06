@@ -104,7 +104,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "am4" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
+                  className="animate-scale-in bg-gradient-to-b from-orange-500 to-gray-900 hover:from-orange-600 hover:to-black flex-col"
                   onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
                   aria-label="AM4"
                   title="AM4"
@@ -114,12 +114,14 @@ export default function ProcessorSelector({
                     alt="AMD"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM4</span>
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-300 via-orange-100 to-orange-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+                    textShadow: "0 0 10px rgba(255,165,0,0.5), 0 0 20px rgba(255,165,0,0.2)"
+                  }}>AM4</span>
                 </Button>
                 <Button
                   variant={socket === "am5" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
+                  className="animate-scale-in bg-gradient-to-b from-orange-500 to-gray-900 hover:from-orange-600 hover:to-black flex-col"
                   onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
                   aria-label="AM5"
                   title="AM5"
@@ -129,7 +131,9 @@ export default function ProcessorSelector({
                     alt="AMD"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">AM5</span>
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-300 via-orange-100 to-orange-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+                    textShadow: "0 0 10px rgba(255,165,0,0.5), 0 0 20px rgba(255,165,0,0.2)"
+                  }}>AM5</span>
                 </Button>
               </>
             ) : (
@@ -137,7 +141,7 @@ export default function ProcessorSelector({
                 <Button
                   variant={socket === "lga1200" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
+                  className="animate-scale-in bg-gradient-to-b from-blue-600 to-blue-900 hover:from-blue-500 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1200" ? null : "lga1200")
                   }
@@ -149,12 +153,14 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1200</span>
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-blue-100 to-blue-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+                    textShadow: "0 0 10px rgba(59,130,246,0.5), 0 0 20px rgba(59,130,246,0.2)"
+                  }}>LGA 1200</span>
                 </Button>
                 <Button
                   variant={socket === "lga1700" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
+                  className="animate-scale-in bg-gradient-to-b from-blue-600 to-blue-900 hover:from-blue-500 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1700" ? null : "lga1700")
                   }
@@ -166,12 +172,14 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1700</span>
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-blue-100 to-blue-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+                    textShadow: "0 0 10px rgba(59,130,246,0.5), 0 0 20px rgba(59,130,246,0.2)"
+                  }}>LGA 1700</span>
                 </Button>
                 <Button
                   variant={socket === "lga1851" ? "filterSelected" : "filter"}
                   size="filter"
-                  className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
+                  className="animate-scale-in bg-gradient-to-b from-blue-600 to-blue-900 hover:from-blue-500 hover:to-blue-950 flex-col"
                   onClick={() =>
                     onSocketChange(socket === "lga1851" ? null : "lga1851")
                   }
@@ -183,7 +191,9 @@ export default function ProcessorSelector({
                     alt="Intel"
                     className="w-8 h-8 object-contain rounded mb-1"
                   />
-                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-300 via-gray-100 to-gray-300">LGA 1851</span>
+                  <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-blue-100 to-blue-300 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]" style={{
+                    textShadow: "0 0 10px rgba(59,130,246,0.5), 0 0 20px rgba(59,130,246,0.2)"
+                  }}>LGA 1851</span>
                 </Button>
               </>
             )}
