@@ -26,10 +26,10 @@ export const extractFilenameFromUrl = (url: string): string => {
 
 // Transform filename by replacing "+" with "_" for better compatibility
 export const transformFilename = (filename: string): string => {
-  return filename.replace(/\+/g, '_').replace(/-/g, '-'); // Keep hyphens as is
+  return filename.replace(/\+/g, '_');
 };
 
-// Get the local image path from the downloaded images folder
+// This function is no longer used in the new approach but kept for backward compatibility
 export const getProxiedImageUrl = (url: string, shouldTransform = false): string => {
   // Make sure the URL is valid
   if (!url || typeof url !== 'string') {
