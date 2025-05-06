@@ -1,14 +1,18 @@
 
 import { useState, useEffect } from "react";
-import { CheckCircle, ArrowLeft } from "lucide-react";
+import { CheckCircle, ArrowLeft, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import InteractiveBackground from "@/components/InteractiveBackground";
+import { useFilters } from "@/context/FilterContext";
+import jsPDF from "jspdf";
+import { toast } from "sonner";
 
 export default function Validation() {
   const navigate = useNavigate();
   const [validationComplete, setValidationComplete] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { selectedComponents } = useFilters();
 
   useEffect(() => {
     // Simulate validation progress
@@ -27,6 +31,87 @@ export default function Validation() {
       clearInterval(timer);
     };
   }, []);
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(22);
+    doc.setTextColor(33, 33, 33);
+    doc.text("Configuración de PC", 105, 20, { align: "center" });
+    
+    // Add date
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    const date = new Date().toLocaleDateString("es-ES");
+    doc.text(`Fecha: ${date}`, 105, 30, { align: "center" });
+    
+    // Add line
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+    
+    // Add components table
+    doc.setFontSize(14);
+    doc.setTextColor(33, 33, 33);
+    doc.text("Componentes:", 20, 45);
+    
+    // Table headers
+    doc.setFontSize(12);
+    doc.setTextColor(80, 80, 80);
+    doc.text("Componente", 20, 55);
+    doc.text("Cantidad", 120, 55);
+    doc.text("Precio", 160, 55);
+    
+    // Add components data
+    let yPosition = 65;
+    let total = 0;
+    const quantities = {};
+    
+    // Set default quantities if selectedComponents exists
+    if (selectedComponents) {
+      Object.keys(selectedComponents).forEach(category => {
+        quantities[category] = 1;
+      });
+    }
+    
+    // Add each component
+    if (selectedComponents) {
+      Object.entries(selectedComponents).forEach(([category, component], index) => {
+        if (component && component.Precios.Nuevos?.Precio.valor) {
+          const quantity = quantities[category] || 1;
+          const price = component.Precios.Nuevos.Precio.valor * quantity;
+          total += price;
+          
+          doc.text(component.Nombre.substring(0, 60), 20, yPosition);
+          doc.text(quantity.toString(), 120, yPosition);
+          doc.text(`${price.toFixed(2)} €`, 160, yPosition);
+          
+          yPosition += 10;
+        }
+      });
+    }
+    
+    // Add line before total
+    doc.setLineWidth(0.5);
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 10;
+    
+    // Add total
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Total:", 120, yPosition);
+    doc.text(`${total.toFixed(2)} €`, 160, yPosition);
+    
+    // Add footer
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(120, 120, 120);
+    doc.text("Configuración validada - Todos los componentes son compatibles", 105, 280, { align: "center" });
+    
+    // Save PDF
+    doc.save("configuracion-pc.pdf");
+    toast.success("PDF descargado correctamente");
+  };
 
   return (
     <div className="min-h-screen bg-transparent relative overflow-hidden">
@@ -102,21 +187,39 @@ export default function Validation() {
                 </div>
               </div>
               
-              <Button 
-                onClick={() => navigate("/builder")}
-                className="
-                  bg-gradient-to-r from-green-600 to-emerald-600
-                  hover:from-green-700 hover:to-emerald-700
-                  text-white px-6 py-6 rounded-lg
-                  shadow-[0_0_15px_rgba(72,187,120,0.5)]
-                  hover:shadow-[0_0_25px_rgba(72,187,120,0.8)]
-                  transition-all duration-300
-                  text-lg
-                "
-              >
-                <CheckCircle className="mr-2 h-5 w-5" />
-                Volver al Builder
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <Button 
+                  onClick={() => navigate("/builder")}
+                  className="
+                    bg-gradient-to-r from-green-600 to-emerald-600
+                    hover:from-green-700 hover:to-emerald-700
+                    text-white px-6 py-6 rounded-lg
+                    shadow-[0_0_15px_rgba(72,187,120,0.5)]
+                    hover:shadow-[0_0_25px_rgba(72,187,120,0.8)]
+                    transition-all duration-300
+                    text-lg w-full sm:w-auto
+                  "
+                >
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  Volver al Builder
+                </Button>
+                
+                <Button 
+                  onClick={handleDownloadPDF}
+                  className="
+                    bg-gradient-to-r from-blue-600 to-indigo-600
+                    hover:from-blue-700 hover:to-indigo-700
+                    text-white px-6 py-6 rounded-lg
+                    shadow-[0_0_15px_rgba(66,153,225,0.5)]
+                    hover:shadow-[0_0_25px_rgba(66,153,225,0.8)]
+                    transition-all duration-300
+                    text-lg w-full sm:w-auto
+                  "
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  Descargar Build
+                </Button>
+              </div>
             </div>
           )}
         </div>
