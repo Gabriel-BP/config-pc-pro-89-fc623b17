@@ -26,11 +26,11 @@ export const extractFilenameFromUrl = (url: string): string => {
 
 // Transform filename by replacing "+" with "_" for better compatibility
 export const transformFilename = (filename: string): string => {
-  return filename.replace(/\+/g, '_');
+  return filename.replace(/\+/g, '_').replace(/-/g, '-'); // Keep hyphens as is
 };
 
 // Get the local image path from the downloaded images folder
-export const getProxiedImageUrl = (url: string, transformFilename = false): string => {
+export const getProxiedImageUrl = (url: string, shouldTransform = false): string => {
   // Make sure the URL is valid
   if (!url || typeof url !== 'string') {
     return '/placeholder.svg';
@@ -45,8 +45,8 @@ export const getProxiedImageUrl = (url: string, transformFilename = false): stri
   let filename = extractFilenameFromUrl(url);
   
   // Transform the filename if requested (replace "+" with "_")
-  if (transformFilename && filename) {
-    filename = filename.replace(/\+/g, '_');
+  if (shouldTransform && filename) {
+    filename = transformFilename(filename);
   }
   
   if (filename) {

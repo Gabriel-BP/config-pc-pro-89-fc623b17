@@ -30,7 +30,7 @@ export function ProgressiveImage({
           <div className="flex justify-center mb-1">
             <HelpCircle className="h-8 w-8" />
           </div>
-          <p className="text-xs">Error de imagen</p>
+          <p className="text-xs">Imagen no disponible</p>
           <p className="text-xs truncate max-w-32">{extractFilenameFromUrl(url)}</p>
         </div>
       </div>
