@@ -59,6 +59,15 @@ export function CategorySelector({
                 onMouseEnter={() => setHoveredCategory(category.id)}
                 onMouseLeave={() => setHoveredCategory(null)}
               >
+                <div 
+                  className={cn(
+                    "absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-md bg-gray-800/90 text-white text-sm font-medium shadow-lg backdrop-blur-sm whitespace-nowrap z-50 transition-all duration-300 transform",
+                    hoveredCategory === category.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+                  )}
+                >
+                  {category.name}
+                </div>
+                
                 <Button
                   variant={isSelected ? "filterSelected" : "filter"}
                   size="filter"
@@ -78,19 +87,6 @@ export function CategorySelector({
                 >
                   <Icon className="w-8 h-8" />
                 </Button>
-                
-                <div 
-                  className={cn(
-                    "absolute left-full ml-2 px-3 py-1.5 rounded-md bg-gray-800/90 text-white text-sm font-medium shadow-lg backdrop-blur-sm whitespace-nowrap z-50 transition-all duration-300 transform",
-                    hoveredCategory === category.id ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 pointer-events-none"
-                  )}
-                  style={{
-                    top: '50%',
-                    transform: hoveredCategory === category.id ? 'translateY(-50%)' : 'translateY(-50%) translateX(-4px)',
-                  }}
-                >
-                  {category.name}
-                </div>
               </div>
             );
           })}
