@@ -19,7 +19,7 @@ export const extractFilenameFromUrl = (url: string): string => {
     return pathnameParts[pathnameParts.length - 1];
   } catch (e) {
     // If there's an error parsing the URL, try to extract using regex as fallback
-    const matches = url.match(/\/([^\/]+)$/i);
+    const matches = url.match(/\/([^\/]+\.(jpg|jpeg|png|gif|webp|svg))(\?.*)?$/i);
     return matches ? matches[1] : '';
   }
 };
