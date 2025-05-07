@@ -61,9 +61,9 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
               {renderCategoryFilters(category, filters, handleFilterChange)}
             </div>
             <div className="flex justify-end mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={resetFilters}
                 className="bg-black/30 border-white/10 hover:bg-black/50 text-white"
               >
@@ -577,12 +577,15 @@ function FilterSelect({ id, label, value, onChange, options }: FilterSelectProps
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="text-sm text-white">{label}</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select
+        value={value}
+        onValueChange={(value) => onChange(value === "__all__" ? "" : value)}
+      >
         <SelectTrigger id={id} className="bg-black/30 border-white/10 text-white">
           <SelectValue placeholder="Seleccionar..." />
         </SelectTrigger>
         <SelectContent className="bg-gray-900 border-white/10 text-white">
-          <SelectItem value="">Todos</SelectItem>
+          <SelectItem value="__all__">Todos</SelectItem>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
