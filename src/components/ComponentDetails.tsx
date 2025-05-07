@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Component } from "@/types/components";
 import { ProgressiveImage } from "./common/ProgressiveImage";
+import { convertToEuros, formatEuroPrice } from "@/lib/currencyUtils";
 
 interface ComponentDetailsProps {
   component: Component | null;
@@ -31,6 +32,13 @@ export function ComponentDetails({
   const handleAddComponent = () => {
     onAddComponent(component);
     onClose();
+  };
+
+  // Convert prices to euros
+  const formatPrice = (priceInfo: any) => {
+    if (!priceInfo) return null;
+    const priceInEuros = convertToEuros(priceInfo.Precio.valor, priceInfo.Precio.moneda);
+    return formatEuroPrice(priceInEuros);
   };
 
   return (
@@ -60,7 +68,7 @@ export function ComponentDetails({
                   <div className="flex justify-between items-center">
                     <span>Nuevo:</span>
                     <span className="text-xl font-bold text-primary">
-                      {component.Precios.Nuevos.Precio.valor} {component.Precios.Nuevos.Precio.moneda}
+                      {formatPrice(component.Precios.Nuevos)}
                     </span>
                   </div>
                 )}
@@ -68,7 +76,7 @@ export function ComponentDetails({
                   <div className="flex justify-between items-center mt-2">
                     <span>Usado:</span>
                     <span className="text-lg text-muted-foreground">
-                      {component.Precios.Utilizados.Precio.valor} {component.Precios.Utilizados.Precio.moneda}
+                      {formatPrice(component.Precios.Utilizados)}
                     </span>
                   </div>
                 )}

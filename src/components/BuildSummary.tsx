@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
+import { convertToEuros, formatEuroPrice } from "@/lib/currencyUtils";
 
 interface ComponentQuantity {
   component: Component;
@@ -45,10 +46,26 @@ export function BuildSummary({
 
   const total = Object.entries(selectedComponents).reduce((acc, [category, component]) => {
     if (component?.Precios.Nuevos?.Precio.valor) {
-      return acc + (component.Precios.Nuevos.Precio.valor * (quantities[category] || 1));
+      const priceInEuros = convertToEuros(
+        component.Precios.Nuevos.Precio.valor, 
+        component.Precios.Nuevos.Precio.moneda
+      );
+      return acc + (priceInEuros * (quantities[category] || 1));
     }
     return acc;
   }, 0);
+
+  // Helper function to format component prices in euros
+  const getComponentPrice = (component: Component, quantity: number) => {
+    if (component?.Precios.Nuevos?.Precio.valor) {
+      const priceInEuros = convertToEuros(
+        component.Precios.Nuevos.Precio.valor,
+        component.Precios.Nuevos.Precio.moneda
+      );
+      return formatEuroPrice(priceInEuros * quantity);
+    }
+    return "-";
+  };
 
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -91,9 +108,7 @@ export function BuildSummary({
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  {component?.Precios.Nuevos?.Precio.valor ? 
-                    `${(component.Precios.Nuevos.Precio.valor * (quantities[category] || 1)).toFixed(2)} ${component.Precios.Nuevos.Precio.moneda}` 
-                    : "-"}
+                  {component ? getComponentPrice(component, quantities[category] || 1) : "-"}
                 </TableCell>
                 <TableCell>
                   <Button
@@ -112,7 +127,7 @@ export function BuildSummary({
                 Total
               </TableCell>
               <TableCell className="text-right font-bold">
-                {total.toFixed(2)} €
+                {formatEuroPrice(total)}
               </TableCell>
               <TableCell />
             </TableRow>
