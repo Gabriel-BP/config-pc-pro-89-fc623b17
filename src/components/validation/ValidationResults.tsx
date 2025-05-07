@@ -30,16 +30,9 @@ const ValidationResults: React.FC = () => {
         Todos los componentes son compatibles entre sí y cumplen con los requisitos mínimos.
       </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
-        <div className="bg-indigo-950/30 border border-indigo-500/20 p-4 rounded-lg">
-          <h3 className="font-semibold text-indigo-400 mb-2">Rendimiento</h3>
-          <p className="text-white">Excelente para gaming y tareas intensivas</p>
-        </div>
-        
-        <div className="bg-blue-950/30 border border-blue-500/20 p-4 rounded-lg">
-          <h3 className="font-semibold text-blue-400 mb-2">Refrigeración</h3>
-          <p className="text-white">Adecuada para todos los componentes</p>
-        </div>
+      <div className="bg-blue-950/30 border border-blue-500/20 p-4 rounded-lg w-full mb-8">
+        <h3 className="font-semibold text-blue-400 mb-2">Refrigeración</h3>
+        <p className="text-white">Adecuada para todos los componentes</p>
       </div>
       
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">

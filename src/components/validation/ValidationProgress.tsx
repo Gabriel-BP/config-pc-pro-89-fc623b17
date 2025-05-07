@@ -8,7 +8,7 @@ interface ValidationProgressProps {
 
 const ValidationProgress: React.FC<ValidationProgressProps> = ({ progress }) => {
   // List of components that we check during validation
-  const validationComponents = ["Procesador", "Placa base", "Memoria RAM", "Tarjeta gráfica"];
+  const validationComponents = ["Procesador", "Placa base", "Memoria RAM", "Tarjeta gráfica", "Refrigeración"];
   
   return (
     <>
@@ -24,17 +24,17 @@ const ValidationProgress: React.FC<ValidationProgressProps> = ({ progress }) => 
       </div>
       
       <div className="grid grid-cols-2 gap-4 mb-8 w-full max-w-md">
-        {validationComponents.map((component) => (
+        {validationComponents.map((component, index) => (
           <div 
             key={component}
             className={`
               flex items-center gap-2 p-3 rounded-lg
-              ${progress > 30 ? "text-green-400" : "text-gray-400"}
-              ${progress > 30 ? "bg-green-900/20" : "bg-gray-800/30"}
+              ${progress > 20 * index ? "text-green-400" : "text-gray-400"}
+              ${progress > 20 * index ? "bg-green-900/20" : "bg-gray-800/30"}
               transition-all duration-500 border border-white/5
             `}
           >
-            {progress > 30 && <CheckCircle className="h-4 w-4" />}
+            {progress > 20 * index && <CheckCircle className="h-4 w-4" />}
             <span>{component}</span>
           </div>
         ))}
