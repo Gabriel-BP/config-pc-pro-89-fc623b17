@@ -7,6 +7,7 @@ import InteractiveBackground from "@/components/InteractiveBackground";
 import { useFilters } from "@/context/FilterContext";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
+import { convertToEuros, formatEuroPrice } from "@/lib/currencyUtils";
 
 export default function Validation() {
   const navigate = useNavigate();
@@ -33,7 +34,12 @@ export default function Validation() {
   }, []);
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+    // Create a new PDF document
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
     
     // Add title
     doc.setFontSize(22);
@@ -50,41 +56,58 @@ export default function Validation() {
     doc.setLineWidth(0.5);
     doc.line(20, 35, 190, 35);
     
-    // Add components table
+    // Add components table header
     doc.setFontSize(14);
     doc.setTextColor(33, 33, 33);
     doc.text("Componentes:", 20, 45);
     
     // Table headers
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(80, 80, 80);
     doc.text("Componente", 20, 55);
-    doc.text("Cantidad", 120, 55);
-    doc.text("Precio", 160, 55);
+    doc.text("Cantidad", 140, 55);
+    doc.text("Precio", 170, 55);
     
     // Add components data
     let yPosition = 65;
     let total = 0;
-    const quantities = {};
     
-    // Set default quantities if selectedComponents exists
+    // Process components for PDF
     if (selectedComponents) {
-      Object.keys(selectedComponents).forEach(category => {
-        quantities[category] = 1;
-      });
-    }
-    
-    // Add each component
-    if (selectedComponents) {
-      Object.entries(selectedComponents).forEach(([category, component], index) => {
+      Object.entries(selectedComponents).forEach(([category, component]) => {
         if (component && component.Precios.Nuevos?.Precio.valor) {
-          const quantity = quantities[category] || 1;
-          const price = component.Precios.Nuevos.Precio.valor * quantity;
-          total += price;
+          // Calculate price in euros
+          const originalValue = component.Precios.Nuevos.Precio.valor;
+          const originalCurrency = component.Precios.Nuevos.Precio.moneda;
+          const priceInEuros = convertToEuros(originalValue, originalCurrency);
+          const quantity = 1;
+          total += priceInEuros;
           
-          doc.text(component.Nombre.substring(0, 60), 20, yPosition);
-          doc.text(quantity.toString(), 120, yPosition);
-          doc.text(`${price.toFixed(2)} €`, 160, yPosition);
+          // Truncate component name if too long
+          let displayName = component.Nombre;
+          if (displayName.length > 50) {
+            displayName = displayName.substring(0, 47) + "...";
+          }
+          
+          // Only add if there's room on the page, otherwise create a new page
+          if (yPosition > 250) {
+            doc.addPage();
+            yPosition = 20; // Reset position for new page
+            
+            // Add header for continuation
+            doc.setFontSize(11);
+            doc.setTextColor(80, 80, 80);
+            doc.text("Componente", 20, yPosition);
+            doc.text("Cantidad", 140, yPosition);
+            doc.text("Precio", 170, yPosition);
+            yPosition += 10;
+          }
+          
+          doc.setFontSize(10);
+          doc.setTextColor(33, 33, 33);
+          doc.text(displayName, 20, yPosition);
+          doc.text(quantity.toString(), 145, yPosition);
+          doc.text(`${priceInEuros.toFixed(2)} €`, 170, yPosition);
           
           yPosition += 10;
         }
@@ -97,12 +120,14 @@ export default function Validation() {
     yPosition += 10;
     
     // Add total
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text("Total:", 120, yPosition);
-    doc.text(`${total.toFixed(2)} €`, 160, yPosition);
+    doc.text("Total:", 140, yPosition);
+    doc.text(`${total.toFixed(2)} €`, 170, yPosition);
     
     // Add footer
+    const lastPage = doc.internal.getNumberOfPages();
+    doc.setPage(lastPage);
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(120, 120, 120);
