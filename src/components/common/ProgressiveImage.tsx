@@ -1,7 +1,7 @@
 
 import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { extractFilenameFromUrl } from '@/lib/imageUtils';
 
 interface ProgressiveImageProps {

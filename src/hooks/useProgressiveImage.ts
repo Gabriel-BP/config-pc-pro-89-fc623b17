@@ -62,7 +62,8 @@ export const useProgressiveImage = (url: string) => {
             // All attempts failed, use placeholder
             console.error('All image loading attempts failed:', {
               originalUrl: url,
-              filename: extractedFilename,
+              extractedFilename,
+              attemptedPath: imagePath,
               fallbackPath: '/placeholder.svg'
             });
             setState({ 
