@@ -58,6 +58,12 @@ export const useProgressiveImage = (url: string) => {
             console.log('First attempt failed, trying transformed filename:', transformedFilename);
             tryLoadImage(transformedFilename, 'transformed');
           } 
+          else if (attemptType === 'transformed' && filename !== extractedFilename && filename !== encodeURIComponent(extractedFilename)) {
+            // Try with URL encoded filename as a last resort
+            const encodedFilename = encodeURIComponent(extractedFilename);
+            console.log('Transformed attempt failed, trying URL encoded filename:', encodedFilename);
+            tryLoadImage(encodedFilename, 'encoded');
+          }
           else {
             // All attempts failed, use placeholder
             console.error('All image loading attempts failed:', {
