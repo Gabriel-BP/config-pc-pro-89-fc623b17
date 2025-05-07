@@ -29,30 +29,8 @@ export const transformFilename = (filename: string): string => {
   return filename.replace(/\+/g, '_');
 };
 
-// This function is no longer used in the new approach but kept for backward compatibility
-export const getProxiedImageUrl = (url: string, shouldTransform = false): string => {
-  // Make sure the URL is valid
-  if (!url || typeof url !== 'string') {
-    return '/placeholder.svg';
-  }
-
-  // If it's a relative URL or data URL, return as is
-  if (url.startsWith('/') || url.startsWith('data:')) {
-    return url;
-  }
-  
-  // Extract the filename from the URL
-  let filename = extractFilenameFromUrl(url);
-  
-  // Transform the filename if requested (replace "+" with "_")
-  if (shouldTransform && filename) {
-    filename = transformFilename(filename);
-  }
-  
-  if (filename) {
-    return `/imagenes_descargadas/${filename}`;
-  }
-  
-  // If we couldn't extract a filename, return a placeholder
-  return '/placeholder.svg';
+// Simple function to get the local path to an image
+export const getImagePath = (filename: string): string => {
+  if (!filename) return '/placeholder.svg';
+  return `/imagenes_descargadas/${filename}`;
 };

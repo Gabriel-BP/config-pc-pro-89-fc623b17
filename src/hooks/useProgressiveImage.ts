@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { extractFilenameFromUrl, transformFilename } from '@/lib/imageUtils';
+import { extractFilenameFromUrl, transformFilename, getImagePath } from '@/lib/imageUtils';
 
 interface ProgressiveImageState {
   loadedUrl: string;
@@ -17,74 +17,65 @@ export const useProgressiveImage = (url: string) => {
   
   useEffect(() => {
     if (!url) {
-      setState({ loadedUrl: '', isLoading: false, error: true });
+      setState({ loadedUrl: '/placeholder.svg', isLoading: false, error: true });
       return;
     }
     
     setState(prev => ({ ...prev, isLoading: true, error: false }));
     let isMounted = true;
     
-    // Extract filename from URL - this is the only thing we'll use
-    const extractedFilename = extractFilenameFromUrl(url);
+    // Extract filename from URL
+    const originalFilename = extractFilenameFromUrl(url);
+    console.log(`Original filename extracted: ${originalFilename}`);
     
-    if (!extractedFilename) {
+    if (!originalFilename) {
       console.error('Could not extract filename from URL:', url);
-      setState({ loadedUrl: '/placeholder.svg', isLoading: false, error: true });
+      if (isMounted) {
+        setState({ loadedUrl: '/placeholder.svg', isLoading: false, error: true });
+      }
       return;
     }
     
-    console.log(`Extracted filename: ${extractedFilename}`);
+    // First attempt: try with original filename
+    const originalPath = getImagePath(originalFilename);
+    console.log(`Loading image (original): ${originalPath}`);
     
-    // Try loading with different approaches
-    const tryLoadImage = (filename: string, attemptType = 'original') => {
-      const imagePath = `/imagenes_descargadas/${filename}`;
-      console.log(`Attempting to load image (${attemptType}):`, imagePath);
-      
-      // Create an Image object to preload
-      const img = new Image();
-      
-      img.onload = () => {
-        if (isMounted) {
-          console.log(`Image loaded successfully (${attemptType}):`, imagePath);
-          setState({ loadedUrl: imagePath, isLoading: false, error: false });
-        }
-      };
-      
-      img.onerror = () => {
-        if (isMounted) {
-          if (attemptType === 'original') {
-            // First attempt failed, try with transformed filename (+ -> _)
-            const transformedFilename = transformFilename(extractedFilename);
-            console.log('First attempt failed, trying transformed filename:', transformedFilename);
-            tryLoadImage(transformedFilename, 'transformed');
-          } 
-          else if (attemptType === 'transformed' && filename !== extractedFilename && filename !== encodeURIComponent(extractedFilename)) {
-            // Try with URL encoded filename as a last resort
-            const encodedFilename = encodeURIComponent(extractedFilename);
-            console.log('Transformed attempt failed, trying URL encoded filename:', encodedFilename);
-            tryLoadImage(encodedFilename, 'encoded');
-          }
-          else {
-            // All attempts failed, use placeholder
-            console.error('All image loading attempts failed:', {
-              originalUrl: url,
-              filename: extractedFilename,
-              fallbackPath: '/placeholder.svg'
-            });
-            setState({ 
-              loadedUrl: '/placeholder.svg', 
-              isLoading: false, 
-              error: true 
-            });
-          }
-        }
-      };
-      
-      img.src = imagePath;
+    const originalImage = new Image();
+    originalImage.onload = () => {
+      if (isMounted) {
+        console.log(`Image loaded successfully with original filename`);
+        setState({ loadedUrl: originalPath, isLoading: false, error: false });
+      }
     };
     
-    // Start with the original extracted filename
-    tryLoadImage(extractedFilename, 'original');
+    originalImage.onerror = () => {
+      if (!isMounted) return;
+      
+      // Second attempt: try with transformed filename (+ replaced with _)
+      console.log('Original filename failed, trying transformed version');
+      const transformedFilename = transformFilename(originalFilename);
+      const transformedPath = getImagePath(transformedFilename);
+      console.log(`Loading image (transformed): ${transformedPath}`);
+      
+      const transformedImage = new Image();
+      transformedImage.onload = () => {
+        if (isMounted) {
+          console.log(`Image loaded successfully with transformed filename`);
+          setState({ loadedUrl: transformedPath, isLoading: false, error: false });
+        }
+      };
+      
+      transformedImage.onerror = () => {
+        if (isMounted) {
+          console.error('All image loading attempts failed, using placeholder');
+          setState({ loadedUrl: '/placeholder.svg', isLoading: false, error: true });
+        }
+      };
+      
+      transformedImage.src = transformedPath;
+    };
+    
+    originalImage.src = originalPath;
     
     return () => {
       isMounted = false;

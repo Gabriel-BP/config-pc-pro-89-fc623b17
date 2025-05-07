@@ -1,7 +1,7 @@
 
 import { useProgressiveImage } from '@/hooks/useProgressiveImage';
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { extractFilenameFromUrl } from '@/lib/imageUtils';
 
 interface ProgressiveImageProps {
@@ -31,7 +31,6 @@ export function ProgressiveImage({
             <HelpCircle className="h-8 w-8" />
           </div>
           <p className="text-xs">Imagen no disponible</p>
-          <p className="text-xs truncate max-w-32">{extractFilenameFromUrl(url)}</p>
         </div>
       </div>
     );
