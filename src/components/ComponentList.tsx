@@ -7,6 +7,7 @@ import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
 import { ComponentGrid } from "./components/ComponentGrid";
 import { ComponentListPagination } from "./components/ComponentListPagination";
+import { FilterPanel } from "./filters/FilterPanel";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -14,16 +15,22 @@ interface ComponentListProps {
   filters?: any;
 }
 
-export function ComponentList({ category, onSelectComponent, filters }: ComponentListProps) {
+export function ComponentList({ category, onSelectComponent, filters: contextFilters }: ComponentListProps) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   const itemsPerPage = 14;
 
+  // Combine context filters with component-specific filters
+  const combinedFilters = useMemo(() => {
+    return { ...contextFilters, ...componentFilters };
+  }, [contextFilters, componentFilters]);
+
   const { data: components, isLoading } = useQuery({
-    queryKey: ["components", category, filters],
-    queryFn: () => getComponents(category, filters),
+    queryKey: ["components", category, combinedFilters],
+    queryFn: () => getComponents(category, combinedFilters),
   });
 
   const sortedComponents = useMemo(() => {
@@ -82,6 +89,12 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
     }
   };
 
+  const handleFilterChange = (newFilters: Record<string, any>) => {
+    setComponentFilters(newFilters);
+    // Reset to first page when filters change
+    setCurrentPage(1);
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -92,6 +105,8 @@ export function ComponentList({ category, onSelectComponent, filters }: Componen
 
   return (
     <>
+      <FilterPanel category={category} onFilterChange={handleFilterChange} />
+      
       <SortControls onSort={setSortOption} currentSort={sortOption} />
       
       <ComponentGrid 
