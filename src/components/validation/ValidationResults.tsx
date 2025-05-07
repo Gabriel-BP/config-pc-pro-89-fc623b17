@@ -30,11 +30,6 @@ const ValidationResults: React.FC = () => {
         Todos los componentes son compatibles entre sí y cumplen con los requisitos mínimos.
       </p>
       
-      <div className="bg-blue-950/30 border border-blue-500/20 p-4 rounded-lg w-full mb-8">
-        <h3 className="font-semibold text-blue-400 mb-2">Refrigeración</h3>
-        <p className="text-white">Adecuada para todos los componentes</p>
-      </div>
-      
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
         <Button 
           onClick={() => navigate("/builder")}
