@@ -19,8 +19,6 @@ export const extractFilenameFromUrl = (url: string): string => {
     return pathnameParts[pathnameParts.length - 1];
   } catch (e) {
     // If there's an error parsing the URL, try to extract using regex as fallback
-    // This regex now correctly handles filenames with multiple dots (like 41nc3z48-AL._SL500_.jpg)
-    // It matches the last segment of a URL path that ends with a known image extension
     const matches = url.match(/\/([^\/]+\.(jpg|jpeg|png|gif|webp|svg))(\?.*)?$/i);
     return matches ? matches[1] : '';
   }
