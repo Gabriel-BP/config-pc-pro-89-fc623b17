@@ -6,7 +6,7 @@ import InteractiveBackground from "@/components/InteractiveBackground";
 import ProcessorSelector from "@/components/filters/ProcessorSelector";
 import GpuSelector from "@/components/filters/GpuSelector";
 import MotherboardSelector from "@/components/filters/MotherboardSelector";
-import { useFilters } from "@/context/FilterContext";
+import { useFilters, defaultFilters } from "@/context/FilterContext";
 import { toast } from "sonner";
 
 type ProcessorBrand = "intel" | "amd" | null;
@@ -24,29 +24,24 @@ export default function Filters() {
   const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
 
   const handleContinue = () => {
-    // Create a clean object with only non-null values
-    const newFilters: Record<string, any> = {};
-    
-    if (processorBrand) {
-      newFilters.processorBrand = processorBrand;
-    }
-    
-    if (socket) {
-      newFilters.socket = socket;
-    }
-    
-    if (gpuBrand) {
-      newFilters.gpuBrand = gpuBrand;
-    }
-    
-    if (motherboardSize) {
-      newFilters.motherboardSize = motherboardSize;
-    }
+    // Create a new filters object that maintains the structure of FilterState
+    // while only updating the properties that have non-null values
+    const newFilters = {
+      ...defaultFilters,
+      processorBrand,
+      socket,
+      gpuBrand,
+      motherboardSize
+    };
     
     setFilters(newFilters);
     
-    const hasFilters = Object.keys(newFilters).length > 0;
-    if (hasFilters) {
+    const hasActiveFilters = processorBrand !== null || 
+                            socket !== null || 
+                            gpuBrand !== null || 
+                            motherboardSize !== null;
+                            
+    if (hasActiveFilters) {
       toast.success("Filtros aplicados");
     }
     
