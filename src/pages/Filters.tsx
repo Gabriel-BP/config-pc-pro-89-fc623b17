@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -33,22 +32,17 @@ export default function Filters() {
   const [processorBrand, setProcessorBrand] = useState<ProcessorBrand>(filters.processorBrand);
   const [socket, setSocket] = useState<SocketType>(filters.socket);
   const [gpuBrand, setGpuBrand] = useState<GpuBrand>(filters.gpuBrand);
-  const [motherboardSize, setMotherboardSize] = useState<string | null>(
-    filters.motherboardSize
-  );
+  const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
 
   const handleContinue = () => {
-    // Format motherboard size to match database format
-    const formattedMotherboardSize = formatMotherboardSize(motherboardSize);
-    console.log(`Converting motherboard size from ${motherboardSize} to ${formattedMotherboardSize}`);
+    console.log('Current motherboard size:', motherboardSize);
     
-    // Create a new filters object with the correct format
     const newFilters = {
       ...defaultFilters,
       processorBrand,
       socket,
       gpuBrand,
-      motherboardSize: formattedMotherboardSize
+      motherboardSize
     };
     
     console.log('Setting filters before navigation:', newFilters);

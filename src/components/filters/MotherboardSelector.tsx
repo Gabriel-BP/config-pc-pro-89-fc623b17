@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Square } from "lucide-react";
 
-type MotherboardSize = "atx" | "micro-atx" | "mini-itx" | null;
+type MotherboardSize = "ATX" | "Micro-ATX" | "Mini-ITX" | null;
 
 interface MotherboardSelectorProps {
   motherboardSize: MotherboardSize;
@@ -25,9 +25,9 @@ export default function MotherboardSelector({
       </h2>
       <div className="flex justify-center gap-4">
         <Button
-          variant={motherboardSize === "atx" ? "filterSelected" : "filter"}
+          variant={motherboardSize === "ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={() => handleMotherboardSizeChange("atx")}
+          onClick={() => handleMotherboardSizeChange("ATX")}
           aria-label="ATX"
           title="ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -39,9 +39,9 @@ export default function MotherboardSelector({
           </div>
         </Button>
         <Button
-          variant={motherboardSize === "micro-atx" ? "filterSelected" : "filter"}
+          variant={motherboardSize === "Micro-ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={() => handleMotherboardSizeChange("micro-atx")}
+          onClick={() => handleMotherboardSizeChange("Micro-ATX")}
           aria-label="Micro-ATX"
           title="Micro-ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -53,9 +53,9 @@ export default function MotherboardSelector({
           </div>
         </Button>
         <Button
-          variant={motherboardSize === "mini-itx" ? "filterSelected" : "filter"}
+          variant={motherboardSize === "Mini-ITX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={() => handleMotherboardSizeChange("mini-itx")}
+          onClick={() => handleMotherboardSizeChange("Mini-ITX")}
           aria-label="Mini-ITX"
           title="Mini-ITX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
