@@ -44,26 +44,30 @@ app.get('/api/components/:category', async (req, res) => {
             // Filtros para CPU
             if (category === 'cpu' && req.query.processorBrand) {
                 console.log(`Applying CPU brand filter: ${req.query.processorBrand}`);
-                query = { ...query, Marca: { $regex: new RegExp(req.query.processorBrand, 'i') } };
+                // For CPU brand, search in the Nombre field as it may contain the brand name
+                query = { ...query, Nombre: { $regex: new RegExp(req.query.processorBrand, 'i') } };
             }
             
             if (category === 'cpu' && req.query.socket) {
                 console.log(`Applying CPU socket filter: ${req.query.socket}`);
+                // Look for socket in Características.Enchufe (the correct field for socket)
                 query = { 
                     ...query, 
-                    'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
+                    'Características.Enchufe': { $regex: new RegExp(req.query.socket, 'i') } 
                 };
             }
             
             // Filtros para GPU
             if (category === 'gpu' && req.query.gpuBrand) {
                 console.log(`Applying GPU brand filter: ${req.query.gpuBrand}`);
-                query = { ...query, Marca: { $regex: new RegExp(req.query.gpuBrand, 'i') } };
+                // For GPU brand, search in the Nombre field for NVIDIA or AMD mentions
+                query = { ...query, Nombre: { $regex: new RegExp(req.query.gpuBrand, 'i') } };
             }
             
             // Filtros para Motherboard
             if (category === 'motherboard' && req.query.motherboardSize) {
                 console.log(`Applying motherboard size filter: ${req.query.motherboardSize}`);
+                // Use Factor de forma for motherboard size filtering
                 query = { 
                     ...query, 
                     'Características.Factor de forma': { $regex: new RegExp(req.query.motherboardSize, 'i') }
@@ -75,7 +79,7 @@ app.get('/api/components/:category', async (req, res) => {
                 console.log(`Applying motherboard socket filter: ${req.query.socket}`);
                 query = { 
                     ...query, 
-                    'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
+                    'Características.Enchufe': { $regex: new RegExp(req.query.socket, 'i') } 
                 };
             }
             

@@ -23,24 +23,27 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
   const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   const itemsPerPage = 14;
 
-  // Map the filters to the backend expected format if needed
+  // Map the filters to the backend expected format
   const mappedContextFilters = useMemo(() => {
+    console.log('Mapping context filters:', contextFilters);
     const result: Record<string, any> = {};
     
-    // Map motherboardSize to a format the backend understands
+    // Map motherboardSize to the backend format - using exact case from filters
     if (contextFilters.motherboardSize) {
       result.motherboardSize = contextFilters.motherboardSize;
     }
 
-    // Add the other filters directly
+    // Add processor brand filter - we'll search by name
     if (contextFilters.processorBrand) {
       result.processorBrand = contextFilters.processorBrand;
     }
     
+    // Add socket filter - correctly formatted to match Enchufe
     if (contextFilters.socket) {
       result.socket = contextFilters.socket;
     }
     
+    // Add GPU brand filter - we'll search by name
     if (contextFilters.gpuBrand) {
       result.gpuBrand = contextFilters.gpuBrand;
     }
@@ -63,6 +66,9 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
     queryFn: () => getComponents(category, combinedFilters),
   });
 
+  // Add debugging for received components
+  console.log(`Received ${components?.length || 0} components for category ${category}`);
+  
   const sortedComponents = useMemo(() => {
     if (!components) return [];
     
