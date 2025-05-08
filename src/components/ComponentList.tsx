@@ -12,10 +12,10 @@ import { FilterPanel } from "./filters/FilterPanel";
 interface ComponentListProps {
   category: ComponentCategory;
   onSelectComponent: (component: Component) => void;
-  filters?: any;
+  filters?: Record<string, any>;
 }
 
-export function ComponentList({ category, onSelectComponent, filters: contextFilters }: ComponentListProps) {
+export function ComponentList({ category, onSelectComponent, filters: contextFilters = {} }: ComponentListProps) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
@@ -23,10 +23,40 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
   const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   const itemsPerPage = 14;
 
+  // Map the filters to the backend expected format if needed
+  const mappedContextFilters = useMemo(() => {
+    const result: Record<string, any> = {};
+    
+    // Map motherboardSize to a format the backend understands
+    if (contextFilters.motherboardSize) {
+      result.motherboardSize = contextFilters.motherboardSize;
+    }
+
+    // Add the other filters directly
+    if (contextFilters.processorBrand) {
+      result.processorBrand = contextFilters.processorBrand;
+    }
+    
+    if (contextFilters.socket) {
+      result.socket = contextFilters.socket;
+    }
+    
+    if (contextFilters.gpuBrand) {
+      result.gpuBrand = contextFilters.gpuBrand;
+    }
+
+    return result;
+  }, [contextFilters]);
+
   // Combine context filters with component-specific filters
   const combinedFilters = useMemo(() => {
-    return { ...contextFilters, ...componentFilters };
-  }, [contextFilters, componentFilters]);
+    return { ...mappedContextFilters, ...componentFilters };
+  }, [mappedContextFilters, componentFilters]);
+
+  // Add debugging to see what filters are being applied
+  console.log('Component category:', category);
+  console.log('Context filters:', contextFilters);
+  console.log('Combined filters being sent to API:', combinedFilters);
 
   const { data: components, isLoading } = useQuery({
     queryKey: ["components", category, combinedFilters],

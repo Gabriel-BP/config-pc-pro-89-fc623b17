@@ -24,13 +24,24 @@ export default function Filters() {
   const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
 
   const handleContinue = () => {
-    // Only include selected filters (non-null values)
-    const newFilters = {
-      ...(processorBrand && { processorBrand }),
-      ...(socket && { socket }),
-      ...(gpuBrand && { gpuBrand }),
-      ...(motherboardSize && { motherboardSize })
-    };
+    // Create a clean object with only non-null values
+    const newFilters: Record<string, any> = {};
+    
+    if (processorBrand) {
+      newFilters.processorBrand = processorBrand;
+    }
+    
+    if (socket) {
+      newFilters.socket = socket;
+    }
+    
+    if (gpuBrand) {
+      newFilters.gpuBrand = gpuBrand;
+    }
+    
+    if (motherboardSize) {
+      newFilters.motherboardSize = motherboardSize;
+    }
     
     setFilters(newFilters);
     

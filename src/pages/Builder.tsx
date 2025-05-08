@@ -18,6 +18,9 @@ export default function Builder() {
   // Get filters and selectedComponents from context
   const { filters, selectedComponents, setSelectedComponents } = useFilters();
 
+  // Log current filters for debugging
+  console.log('Current filters in Builder page:', filters);
+
   const handleSelectComponent = (component: Component) => {
     setSelectedComponents((prev) => ({
       ...prev,

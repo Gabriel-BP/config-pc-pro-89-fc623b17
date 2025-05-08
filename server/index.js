@@ -33,6 +33,9 @@ app.get('/api/components/:category', async (req, res) => {
     }
     
     try {
+        // Log all incoming filter parameters for debugging
+        console.log('Received query params:', req.query);
+        
         // Construir el query basado en los filtros recibidos
         let query = {};
         
@@ -40,10 +43,12 @@ app.get('/api/components/:category', async (req, res) => {
         if (req.query) {
             // Filtros para CPU
             if (category === 'cpu' && req.query.processorBrand) {
+                console.log(`Applying CPU brand filter: ${req.query.processorBrand}`);
                 query = { ...query, Marca: { $regex: new RegExp(req.query.processorBrand, 'i') } };
             }
             
             if (category === 'cpu' && req.query.socket) {
+                console.log(`Applying CPU socket filter: ${req.query.socket}`);
                 query = { 
                     ...query, 
                     'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
@@ -52,11 +57,13 @@ app.get('/api/components/:category', async (req, res) => {
             
             // Filtros para GPU
             if (category === 'gpu' && req.query.gpuBrand) {
+                console.log(`Applying GPU brand filter: ${req.query.gpuBrand}`);
                 query = { ...query, Marca: { $regex: new RegExp(req.query.gpuBrand, 'i') } };
             }
             
             // Filtros para Motherboard
             if (category === 'motherboard' && req.query.motherboardSize) {
+                console.log(`Applying motherboard size filter: ${req.query.motherboardSize}`);
                 query = { 
                     ...query, 
                     'Características.Factor de forma': { $regex: new RegExp(req.query.motherboardSize, 'i') }
@@ -65,10 +72,17 @@ app.get('/api/components/:category', async (req, res) => {
             
             // Si hay socket seleccionado, filtrar placas base compatibles
             if (category === 'motherboard' && req.query.socket) {
+                console.log(`Applying motherboard socket filter: ${req.query.socket}`);
                 query = { 
                     ...query, 
                     'Características.Socket': { $regex: new RegExp(req.query.socket, 'i') } 
                 };
+            }
+            
+            // Parse other filter params (from FilterPanel)
+            if (req.query.name) {
+                console.log(`Applying name filter: ${req.query.name}`);
+                query = { ...query, Nombre: { $regex: new RegExp(req.query.name, 'i') } };
             }
         }
 

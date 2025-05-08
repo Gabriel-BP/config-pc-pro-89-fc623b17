@@ -34,6 +34,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [selectedComponents, setSelectedComponents] = useState<Partial<Record<ComponentCategory, Component>>>({});
 
+  console.log('Current filters in context:', filters);
+
   return (
     <FilterContext.Provider value={{ filters, setFilters, selectedComponents, setSelectedComponents }}>
       {children}
