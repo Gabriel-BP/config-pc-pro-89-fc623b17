@@ -23,33 +23,39 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
   const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   const itemsPerPage = 14;
 
-  // Map the filters to the backend expected format
+  // Map the filters to the backend expected format with exact values needed by MongoDB
   const mappedContextFilters = useMemo(() => {
-    console.log('Mapping context filters:', contextFilters);
+    console.log('Mapping context filters for category:', category, contextFilters);
     const result: Record<string, any> = {};
     
-    // Map motherboardSize to the backend format - using exact case from filters
+    // Map motherboardSize to the exact format stored in the database
     if (contextFilters.motherboardSize) {
+      // Motherboard size should match 'Características.Factor de forma'
+      // ATX, Micro-ATX, Mini-ITX, etc.
       result.motherboardSize = contextFilters.motherboardSize;
+      console.log(`Set motherboardSize filter to: ${result.motherboardSize}`);
     }
 
-    // Add processor brand filter - we'll search by name
+    // Add processor brand filter - using exact brand name 
     if (contextFilters.processorBrand) {
       result.processorBrand = contextFilters.processorBrand;
+      console.log(`Set processorBrand filter to: ${result.processorBrand}`);
     }
     
-    // Add socket filter - correctly formatted to match Enchufe
+    // Add socket filter - using exact socket format (AM4, AM5, LGA1700, etc.)
     if (contextFilters.socket) {
-      result.socket = contextFilters.socket;
+      result.socket = contextFilters.socket.toUpperCase();
+      console.log(`Set socket filter to: ${result.socket}`);
     }
     
-    // Add GPU brand filter - we'll search by name
+    // Add GPU brand filter (NVIDIA, AMD)
     if (contextFilters.gpuBrand) {
       result.gpuBrand = contextFilters.gpuBrand;
+      console.log(`Set gpuBrand filter to: ${result.gpuBrand}`);
     }
 
     return result;
-  }, [contextFilters]);
+  }, [contextFilters, category]);
 
   // Combine context filters with component-specific filters
   const combinedFilters = useMemo(() => {
@@ -68,6 +74,10 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
 
   // Add debugging for received components
   console.log(`Received ${components?.length || 0} components for category ${category}`);
+  if (components?.length === 0) {
+    // Log a sample filter to see what query would work
+    console.log('No components found with these filters.');
+  }
   
   const sortedComponents = useMemo(() => {
     if (!components) return [];

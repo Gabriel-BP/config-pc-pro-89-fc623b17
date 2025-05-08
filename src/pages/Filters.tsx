@@ -12,7 +12,19 @@ import { toast } from "sonner";
 type ProcessorBrand = "intel" | "amd" | null;
 type SocketType = "am4" | "am5" | "lga1200" | "lga1700" | "lga1851" | null;
 type GpuBrand = "nvidia" | "amd" | null;
-type MotherboardSize = "atx" | "micro-atx" | "mini-itx" | null;
+type MotherboardSize = "ATX" | "Micro-ATX" | "Mini-ITX" | null;
+
+// Function to convert motherboard size to the proper format
+const formatMotherboardSize = (size: string | null): MotherboardSize => {
+  if (!size) return null;
+  
+  switch (size.toLowerCase()) {
+    case 'atx': return 'ATX';
+    case 'micro-atx': return 'Micro-ATX';
+    case 'mini-itx': return 'Mini-ITX';
+    default: return null;
+  }
+};
 
 export default function Filters() {
   const navigate = useNavigate();
@@ -21,19 +33,25 @@ export default function Filters() {
   const [processorBrand, setProcessorBrand] = useState<ProcessorBrand>(filters.processorBrand);
   const [socket, setSocket] = useState<SocketType>(filters.socket);
   const [gpuBrand, setGpuBrand] = useState<GpuBrand>(filters.gpuBrand);
-  const [motherboardSize, setMotherboardSize] = useState<MotherboardSize>(filters.motherboardSize);
+  const [motherboardSize, setMotherboardSize] = useState<string | null>(
+    filters.motherboardSize
+  );
 
   const handleContinue = () => {
-    // Create a new filters object that maintains the structure of FilterState
-    // while only updating the properties that have non-null values
+    // Format motherboard size to match database format
+    const formattedMotherboardSize = formatMotherboardSize(motherboardSize);
+    console.log(`Converting motherboard size from ${motherboardSize} to ${formattedMotherboardSize}`);
+    
+    // Create a new filters object with the correct format
     const newFilters = {
       ...defaultFilters,
       processorBrand,
       socket,
       gpuBrand,
-      motherboardSize
+      motherboardSize: formattedMotherboardSize
     };
     
+    console.log('Setting filters before navigation:', newFilters);
     setFilters(newFilters);
     
     const hasActiveFilters = processorBrand !== null || 

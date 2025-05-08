@@ -5,7 +5,7 @@ import { Component, ComponentCategory } from "@/types/components";
 type ProcessorBrand = "intel" | "amd" | null;
 type SocketType = "am4" | "am5" | "lga1200" | "lga1700" | "lga1851" | null;
 type GpuBrand = "nvidia" | "amd" | null;
-type MotherboardSize = "atx" | "micro-atx" | "mini-itx" | null;
+type MotherboardSize = "ATX" | "Micro-ATX" | "Mini-ITX" | null;
 
 interface FilterState {
   processorBrand: ProcessorBrand;

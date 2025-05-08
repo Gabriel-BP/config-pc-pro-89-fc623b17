@@ -43,35 +43,41 @@ app.get('/api/components/:category', async (req, res) => {
         if (req.query) {
             // Filtros para CPU
             if (category === 'cpu' && req.query.processorBrand) {
-                console.log(`Applying CPU brand filter: ${req.query.processorBrand}`);
-                // For CPU brand, search in the Nombre field as it may contain the brand name
-                query = { ...query, Nombre: { $regex: new RegExp(req.query.processorBrand, 'i') } };
+                const brand = req.query.processorBrand.toLowerCase();
+                console.log(`Applying CPU brand filter: ${brand}`);
+                // For CPU we search in the Nombre field since it contains the brand
+                query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                console.log('CPU Brand query:', JSON.stringify(query));
             }
             
             if (category === 'cpu' && req.query.socket) {
                 console.log(`Applying CPU socket filter: ${req.query.socket}`);
-                // Look for socket in Características.Enchufe (the correct field for socket)
+                // Look for exact socket match in Características.Enchufe
                 query = { 
                     ...query, 
-                    'Características.Enchufe': { $regex: new RegExp(req.query.socket, 'i') } 
+                    'Características.Enchufe': req.query.socket
                 };
+                console.log('CPU Socket query:', JSON.stringify(query));
             }
             
             // Filtros para GPU
             if (category === 'gpu' && req.query.gpuBrand) {
-                console.log(`Applying GPU brand filter: ${req.query.gpuBrand}`);
-                // For GPU brand, search in the Nombre field for NVIDIA or AMD mentions
-                query = { ...query, Nombre: { $regex: new RegExp(req.query.gpuBrand, 'i') } };
+                const brand = req.query.gpuBrand.toLowerCase();
+                console.log(`Applying GPU brand filter: ${brand}`);
+                // For GPU brand, search in the Nombre field for brand mentions
+                query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                console.log('GPU Brand query:', JSON.stringify(query));
             }
             
             // Filtros para Motherboard
             if (category === 'motherboard' && req.query.motherboardSize) {
                 console.log(`Applying motherboard size filter: ${req.query.motherboardSize}`);
-                // Use Factor de forma for motherboard size filtering
+                // Use exact match for Factor de forma
                 query = { 
                     ...query, 
-                    'Características.Factor de forma': { $regex: new RegExp(req.query.motherboardSize, 'i') }
+                    'Características.Factor de forma': req.query.motherboardSize
                 };
+                console.log('Motherboard size query:', JSON.stringify(query));
             }
             
             // Si hay socket seleccionado, filtrar placas base compatibles
@@ -79,8 +85,9 @@ app.get('/api/components/:category', async (req, res) => {
                 console.log(`Applying motherboard socket filter: ${req.query.socket}`);
                 query = { 
                     ...query, 
-                    'Características.Enchufe': { $regex: new RegExp(req.query.socket, 'i') } 
+                    'Características.Enchufe': req.query.socket
                 };
+                console.log('Motherboard socket query:', JSON.stringify(query));
             }
             
             // Parse other filter params (from FilterPanel)
@@ -90,7 +97,7 @@ app.get('/api/components/:category', async (req, res) => {
             }
         }
 
-        console.log('Aplicando filtros:', query);
+        console.log('Final query filters:', JSON.stringify(query));
         
         // Leemos la colección con los filtros aplicados
         const items = await mongoose.connection.db
