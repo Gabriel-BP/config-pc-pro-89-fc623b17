@@ -64,8 +64,33 @@ app.get('/api/components/:category', async (req, res) => {
             if (category === 'gpu' && req.query.gpuBrand) {
                 const brand = req.query.gpuBrand.toLowerCase();
                 console.log(`Applying GPU brand filter: ${brand}`);
-                // For GPU brand, search in the Nombre field for brand mentions
-                query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                
+                if (brand === 'nvidia') {
+                    // For NVIDIA GPUs, search for common NVIDIA product lines
+                    query = { 
+                        ...query, 
+                        $or: [
+                            { Nombre: { $regex: /nvidia/i } },
+                            { Nombre: { $regex: /rtx/i } },
+                            { Nombre: { $regex: /gtx/i } },
+                            { Nombre: { $regex: /quadro/i } },
+                            { Nombre: { $regex: /geforce/i } }
+                        ] 
+                    };
+                } else if (brand === 'amd') {
+                    // For AMD GPUs, search for common AMD product lines
+                    query = { 
+                        ...query, 
+                        $or: [
+                            { Nombre: { $regex: /amd/i } },
+                            { Nombre: { $regex: /radeon/i } },
+                            { Nombre: { $regex: /rx\s?\d/i } } // Matches RX followed by a digit, with or without space
+                        ] 
+                    };
+                } else {
+                    // Fallback to simple brand name matching
+                    query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                }
                 console.log('GPU Brand query:', JSON.stringify(query));
             }
             
