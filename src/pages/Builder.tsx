@@ -57,7 +57,7 @@ export default function Builder() {
       </header>
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-[2fr,1fr] gap-8">
+        <div className="grid md:grid-cols-[1fr,300px] gap-8">
           <div className="space-y-8 animate-fade-in">
             <CategorySelector
               selectedCategory={selectedCategory}
@@ -78,11 +78,12 @@ export default function Builder() {
                   category={selectedCategory}
                   onSelectComponent={handleSelectComponent}
                   filters={filters}
+                  showFiltersSidebar={true}
                 />
               </div>
             )}
           </div>
-          <div className="animate-fade-in">
+          <div className="flex flex-col space-y-8 animate-fade-in">
             <BuildSummary
               selectedComponents={selectedComponents}
               onRemoveComponent={handleRemoveComponent}

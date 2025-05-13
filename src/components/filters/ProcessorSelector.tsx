@@ -21,7 +21,10 @@ export default function ProcessorSelector({
 }: ProcessorSelectorProps) {
   const [isSocketVisible, setIsSocketVisible] = useState(false);
 
-  const handleProcessorBrandChange = (value: ProcessorBrand) => {
+  const handleProcessorBrandChange = (value: ProcessorBrand, e: React.MouseEvent) => {
+    // Prevent the default button behavior which can cause page reloads
+    e.preventDefault();
+    
     if (value === processorBrand) {
       setIsSocketVisible(false);
       setTimeout(() => {
@@ -44,6 +47,12 @@ export default function ProcessorSelector({
     }
   };
 
+  const handleSocketChange = (value: SocketType, e: React.MouseEvent) => {
+    // Prevent the default button behavior which can cause page reloads
+    e.preventDefault();
+    onSocketChange(socket === value ? null : value);
+  };
+
   // Get the image src based on the selected brand
   const getBrandImage = () => {
     if (processorBrand === "intel") {
@@ -60,11 +69,11 @@ export default function ProcessorSelector({
         <Cpu className="w-6 h-6" />
         Procesador
       </h2>
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-col gap-4">
         <Button
           variant={processorBrand === "intel" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={() => handleProcessorBrandChange("intel")}
+          onClick={(e) => handleProcessorBrandChange("intel", e)}
           aria-label="Intel"
           title="Intel"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950"
@@ -78,7 +87,7 @@ export default function ProcessorSelector({
         <Button
           variant={processorBrand === "amd" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={() => handleProcessorBrandChange("amd")}
+          onClick={(e) => handleProcessorBrandChange("amd", e)}
           aria-label="AMD"
           title="AMD"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
@@ -98,14 +107,14 @@ export default function ProcessorSelector({
           }`}
         >
           <h3 className="text-xl font-medium text-white text-center">Socket</h3>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-col gap-4">
             {processorBrand === "amd" ? (
               <>
                 <Button
                   variant={socket === "am4" ? "filterSelected" : "filter"}
                   size="filter"
                   className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
-                  onClick={() => onSocketChange(socket === "am4" ? null : "am4")}
+                  onClick={(e) => handleSocketChange("am4", e)}
                   aria-label="AM4"
                   title="AM4"
                 >
@@ -123,7 +132,7 @@ export default function ProcessorSelector({
                   variant={socket === "am5" ? "filterSelected" : "filter"}
                   size="filter"
                   className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950 flex-col"
-                  onClick={() => onSocketChange(socket === "am5" ? null : "am5")}
+                  onClick={(e) => handleSocketChange("am5", e)}
                   aria-label="AM5"
                   title="AM5"
                 >
@@ -144,9 +153,7 @@ export default function ProcessorSelector({
                   variant={socket === "lga1200" ? "filterSelected" : "filter"}
                   size="filter"
                   className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
-                  onClick={() =>
-                    onSocketChange(socket === "lga1200" ? null : "lga1200")
-                  }
+                  onClick={(e) => handleSocketChange("lga1200", e)}
                   aria-label="LGA 1200"
                   title="LGA 1200"
                 >
@@ -164,9 +171,7 @@ export default function ProcessorSelector({
                   variant={socket === "lga1700" ? "filterSelected" : "filter"}
                   size="filter"
                   className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
-                  onClick={() =>
-                    onSocketChange(socket === "lga1700" ? null : "lga1700")
-                  }
+                  onClick={(e) => handleSocketChange("lga1700", e)}
                   aria-label="LGA 1700"
                   title="LGA 1700"
                 >
@@ -184,9 +189,7 @@ export default function ProcessorSelector({
                   variant={socket === "lga1851" ? "filterSelected" : "filter"}
                   size="filter"
                   className="animate-scale-in bg-gradient-to-b from-gray-800 to-gray-900 hover:from-blue-900 hover:to-blue-950 flex-col"
-                  onClick={() =>
-                    onSocketChange(socket === "lga1851" ? null : "lga1851")
-                  }
+                  onClick={(e) => handleSocketChange("lga1851", e)}
                   aria-label="LGA 1851"
                   title="LGA 1851"
                 >

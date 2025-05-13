@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -12,9 +13,15 @@ interface ComponentListProps {
   category: ComponentCategory;
   onSelectComponent: (component: Component) => void;
   filters?: Record<string, any>;
+  showFiltersSidebar?: boolean;
 }
 
-export function ComponentList({ category, onSelectComponent, filters: contextFilters = {} }: ComponentListProps) {
+export function ComponentList({ 
+  category, 
+  onSelectComponent, 
+  filters: contextFilters = {},
+  showFiltersSidebar = false 
+}: ComponentListProps) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
@@ -133,6 +140,7 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
   };
 
   const handleFilterChange = (newFilters: Record<string, any>) => {
+    // Prevent form submission/page reload
     setComponentFilters(newFilters);
     // Reset to first page when filters change
     setCurrentPage(1);
@@ -147,22 +155,35 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
   }
 
   return (
-    <>
-      <FilterPanel category={category} onFilterChange={handleFilterChange} />
-      
-      <SortControls onSort={setSortOption} currentSort={sortOption} />
-      
-      <ComponentGrid 
-        components={paginatedComponents} 
-        onComponentClick={handleComponentClick} 
-      />
+    <div className={`${showFiltersSidebar ? "flex flex-col md:flex-row gap-6" : ""}`}>
+      <div className={`${showFiltersSidebar ? "flex-1" : ""}`}>
+        <SortControls onSort={setSortOption} currentSort={sortOption} />
+        
+        <ComponentGrid 
+          components={paginatedComponents} 
+          onComponentClick={handleComponentClick} 
+        />
 
-      <ComponentListPagination 
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPrevPage={handlePrevPage}
-        onNextPage={handleNextPage}
-      />
+        <ComponentListPagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPrevPage={handlePrevPage}
+          onNextPage={handleNextPage}
+        />
+      </div>
+      
+      {showFiltersSidebar && (
+        <div className="w-full md:w-64 shrink-0 mt-6 md:mt-0">
+          <div className="bg-black/40 backdrop-blur-sm p-4 rounded-lg border border-white/10">
+            <h3 className="text-lg font-semibold text-white mb-4">Filtros</h3>
+            <FilterPanel 
+              category={category} 
+              onFilterChange={handleFilterChange} 
+              className="flex flex-col space-y-6"
+            />
+          </div>
+        </div>
+      )}
 
       <ComponentDetails
         component={selectedComponent}
@@ -170,6 +191,6 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
         onClose={() => setIsDetailsOpen(false)}
         onAddComponent={onSelectComponent}
       />
-    </>
+    </div>
   );
 }
