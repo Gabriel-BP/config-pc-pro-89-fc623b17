@@ -9,7 +9,6 @@ import InteractiveBackground from "@/components/InteractiveBackground";
 import { useFilters } from "@/context/FilterContext";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { FiltersSidebar } from "@/components/filters/FiltersSidebar";
 
 export default function Builder() {
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | null>(
@@ -83,14 +82,11 @@ export default function Builder() {
               </div>
             )}
           </div>
-          <div className="flex flex-col space-y-6 animate-fade-in">
+          <div className="animate-fade-in">
             <BuildSummary
               selectedComponents={selectedComponents}
               onRemoveComponent={handleRemoveComponent}
             />
-            
-            {/* Añadir los filtros verticalmente bajo el resumen de la construcción */}
-            <FiltersSidebar />
           </div>
         </div>
       </main>

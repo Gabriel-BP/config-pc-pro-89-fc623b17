@@ -13,8 +13,7 @@ export default function MotherboardSelector({
   motherboardSize,
   onMotherboardSizeChange,
 }: MotherboardSelectorProps) {
-  const handleMotherboardSizeChange = (e: React.MouseEvent, value: MotherboardSize) => {
-    e.preventDefault(); // Evitar recarga de página
+  const handleMotherboardSizeChange = (value: MotherboardSize) => {
     onMotherboardSizeChange(motherboardSize === value ? null : value);
   };
 
@@ -28,7 +27,7 @@ export default function MotherboardSelector({
         <Button
           variant={motherboardSize === "ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange(e, "ATX")}
+          onClick={() => handleMotherboardSizeChange("ATX")}
           aria-label="ATX"
           title="ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -42,7 +41,7 @@ export default function MotherboardSelector({
         <Button
           variant={motherboardSize === "Micro-ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange(e, "Micro-ATX")}
+          onClick={() => handleMotherboardSizeChange("Micro-ATX")}
           aria-label="Micro-ATX"
           title="Micro-ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -56,7 +55,7 @@ export default function MotherboardSelector({
         <Button
           variant={motherboardSize === "Mini-ITX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange(e, "Mini-ITX")}
+          onClick={() => handleMotherboardSizeChange("Mini-ITX")}
           aria-label="Mini-ITX"
           title="Mini-ITX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"

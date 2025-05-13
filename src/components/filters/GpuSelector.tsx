@@ -10,8 +10,7 @@ interface GpuSelectorProps {
 }
 
 export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps) {
-  const handleGpuBrandChange = (e: React.MouseEvent, value: GpuBrand) => {
-    e.preventDefault(); // Evitar recarga de página
+  const handleGpuBrandChange = (value: GpuBrand) => {
     onGpuChange(gpuBrand === value ? null : value);
   };
 
@@ -25,7 +24,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
         <Button
           variant={gpuBrand === "nvidia" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleGpuBrandChange(e, "nvidia")}
+          onClick={() => handleGpuBrandChange("nvidia")}
           aria-label="NVIDIA"
           title="NVIDIA"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-green-900 hover:to-green-950"
@@ -39,7 +38,7 @@ export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps)
         <Button
           variant={gpuBrand === "amd" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleGpuBrandChange(e, "amd")}
+          onClick={() => handleGpuBrandChange("amd")}
           aria-label="AMD"
           title="AMD"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
