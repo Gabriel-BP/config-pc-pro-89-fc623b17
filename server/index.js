@@ -45,17 +45,27 @@ app.get('/api/components/:category', async (req, res) => {
             if (category === 'cpu' && req.query.processorBrand) {
                 const brand = req.query.processorBrand.toLowerCase();
                 console.log(`Applying CPU brand filter: ${brand}`);
-                // For CPU we search in the Nombre field since it contains the brand
-                query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                
+                // We need to check both the brand name and the product name as it appears in the database
+                query = { 
+                    ...query, 
+                    $or: [
+                        { Nombre: { $regex: brand, $options: 'i' } },
+                        { Marca: { $regex: brand, $options: 'i' } }
+                    ]
+                };
                 console.log('CPU Brand query:', JSON.stringify(query));
             }
             
             if (category === 'cpu' && req.query.socket) {
                 console.log(`Applying CPU socket filter: ${req.query.socket}`);
-                // Look for exact socket match in Características.Enchufe
+                // The socket might be in different fields or formats, so we try a more flexible approach
                 query = { 
                     ...query, 
-                    'Características.Enchufe': req.query.socket
+                    $or: [
+                        { 'Características.Enchufe': { $regex: req.query.socket, $options: 'i' } },
+                        { 'Características.Socket': { $regex: req.query.socket, $options: 'i' } }
+                    ]
                 };
                 console.log('CPU Socket query:', JSON.stringify(query));
             }
@@ -74,7 +84,8 @@ app.get('/api/components/:category', async (req, res) => {
                             { Nombre: { $regex: /rtx/i } },
                             { Nombre: { $regex: /gtx/i } },
                             { Nombre: { $regex: /quadro/i } },
-                            { Nombre: { $regex: /geforce/i } }
+                            { Nombre: { $regex: /geforce/i } },
+                            { Marca: { $regex: /nvidia/i } }
                         ] 
                     };
                 } else if (brand === 'amd') {
@@ -84,12 +95,19 @@ app.get('/api/components/:category', async (req, res) => {
                         $or: [
                             { Nombre: { $regex: /amd/i } },
                             { Nombre: { $regex: /radeon/i } },
-                            { Nombre: { $regex: /rx\s?\d/i } } // Matches RX followed by a digit, with or without space
+                            { Nombre: { $regex: /rx\s?\d/i } }, // Matches RX followed by a digit, with or without space
+                            { Marca: { $regex: /amd/i } }
                         ] 
                     };
                 } else {
                     // Fallback to simple brand name matching
-                    query = { ...query, Nombre: { $regex: new RegExp(brand, 'i') } };
+                    query = { 
+                        ...query, 
+                        $or: [
+                            { Nombre: { $regex: new RegExp(brand, 'i') } },
+                            { Marca: { $regex: new RegExp(brand, 'i') } }
+                        ]
+                    };
                 }
                 console.log('GPU Brand query:', JSON.stringify(query));
             }
@@ -97,10 +115,15 @@ app.get('/api/components/:category', async (req, res) => {
             // Filtros para Motherboard
             if (category === 'motherboard' && req.query.motherboardSize) {
                 console.log(`Applying motherboard size filter: ${req.query.motherboardSize}`);
-                // Use exact match for Factor de forma
+                // Try to match size in different ways it might appear in the database
+                const sizeValue = req.query.motherboardSize;
                 query = { 
                     ...query, 
-                    'Características.Factor de forma': req.query.motherboardSize
+                    $or: [
+                        { 'Características.Factor de forma': { $regex: sizeValue, $options: 'i' } },
+                        { 'Características.Formato': { $regex: sizeValue, $options: 'i' } },
+                        { 'Factor de forma': { $regex: sizeValue, $options: 'i' } }
+                    ]
                 };
                 console.log('Motherboard size query:', JSON.stringify(query));
             }
@@ -108,9 +131,14 @@ app.get('/api/components/:category', async (req, res) => {
             // Si hay socket seleccionado, filtrar placas base compatibles
             if (category === 'motherboard' && req.query.socket) {
                 console.log(`Applying motherboard socket filter: ${req.query.socket}`);
+                // Try different field names for socket
                 query = { 
                     ...query, 
-                    'Características.Enchufe': req.query.socket
+                    $or: [
+                        { 'Características.Enchufe': { $regex: req.query.socket, $options: 'i' } },
+                        { 'Características.Socket': { $regex: req.query.socket, $options: 'i' } },
+                        { 'Socket': { $regex: req.query.socket, $options: 'i' } }
+                    ]
                 };
                 console.log('Motherboard socket query:', JSON.stringify(query));
             }
@@ -131,6 +159,23 @@ app.get('/api/components/:category', async (req, res) => {
             .toArray();
             
         console.log(`Encontrados ${items.length} componentes en ${collName}`);
+        
+        // Si no hay resultados y hay filtros aplicados, intenta un query simplificado
+        if (items.length === 0 && Object.keys(query).length > 0) {
+            console.log('No se encontraron resultados con los filtros. Realizando un diagnóstico...');
+            
+            // Mostrar una muestra de documentos para ver su estructura
+            const sampleDocs = await mongoose.connection.db
+                .collection(collName)
+                .find({})
+                .limit(1)
+                .toArray();
+                
+            if (sampleDocs.length > 0) {
+                console.log('Muestra de estructura de documento:', JSON.stringify(sampleDocs[0]));
+            }
+        }
+        
         res.json(items);
     } catch (err) {
         console.error('🔥 Error al consultar la colección', collName, err);

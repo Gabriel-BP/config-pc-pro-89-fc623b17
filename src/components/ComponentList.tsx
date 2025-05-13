@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -30,21 +29,19 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
     
     // Map motherboardSize to the exact format stored in the database
     if (contextFilters.motherboardSize) {
-      // Motherboard size should match 'Características.Factor de forma'
-      // ATX, Micro-ATX, Mini-ITX, etc.
       result.motherboardSize = contextFilters.motherboardSize;
       console.log(`Set motherboardSize filter to: ${result.motherboardSize}`);
     }
 
-    // Add processor brand filter - using exact brand name 
+    // Add processor brand filter
     if (contextFilters.processorBrand) {
       result.processorBrand = contextFilters.processorBrand;
       console.log(`Set processorBrand filter to: ${result.processorBrand}`);
     }
     
-    // Add socket filter - using exact socket format (AM4, AM5, LGA1700, etc.)
+    // Add socket filter - send as-is and let the server handle the formatting
     if (contextFilters.socket) {
-      result.socket = contextFilters.socket.toUpperCase();
+      result.socket = contextFilters.socket;
       console.log(`Set socket filter to: ${result.socket}`);
     }
     
