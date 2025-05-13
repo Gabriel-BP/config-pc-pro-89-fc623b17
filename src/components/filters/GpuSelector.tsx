@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Component, Cpu } from "lucide-react";
+import { Component } from "lucide-react";
 
 type GpuBrand = "nvidia" | "amd" | null;
 

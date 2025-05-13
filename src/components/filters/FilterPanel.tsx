@@ -1,9 +1,9 @@
 
 import { ComponentCategory } from "@/types/components";
 import { useEffect, useState } from "react";
-import ProcessorSelector from "./ProcessorSelector";
-import GpuSelector from "./GpuSelector";
-import MotherboardSelector from "./MotherboardSelector";
+import { ProcessorSelector } from "./ProcessorSelector";
+import { GpuSelector } from "./GpuSelector";
+import { MotherboardSelector } from "./MotherboardSelector";
 
 interface FilterPanelProps {
   category: ComponentCategory;
@@ -48,7 +48,7 @@ export function FilterPanel({ category, onFilterChange, className = "" }: Filter
 
   return (
     <div className={className} onClick={handleButtonClick}>
-      {category === "processor" && (
+      {category === "cpu" && (
         <ProcessorSelector
           processorBrand={processorBrand}
           socket={socket}
@@ -57,7 +57,7 @@ export function FilterPanel({ category, onFilterChange, className = "" }: Filter
         />
       )}
 
-      {category === "graphic-card" && (
+      {category === "gpu" && (
         <GpuSelector
           gpuBrand={gpuBrand}
           onGpuBrandChange={setGpuBrand}

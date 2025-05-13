@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import InteractiveBackground from "@/components/InteractiveBackground";
-import ProcessorSelector from "@/components/filters/ProcessorSelector";
-import GpuSelector from "@/components/filters/GpuSelector";
-import MotherboardSelector from "@/components/filters/MotherboardSelector";
+import { ProcessorSelector } from "@/components/filters/ProcessorSelector";
+import { GpuSelector } from "@/components/filters/GpuSelector";
+import { MotherboardSelector } from "@/components/filters/MotherboardSelector";
 import { useFilters, defaultFilters } from "@/context/FilterContext";
 import { toast } from "sonner";
 
@@ -77,7 +78,7 @@ export default function Filters() {
               onSocketChange={setSocket}
             />
 
-            <GpuSelector gpuBrand={gpuBrand} onGpuChange={setGpuBrand} />
+            <GpuSelector gpuBrand={gpuBrand} onGpuBrandChange={setGpuBrand} />
 
             <MotherboardSelector
               motherboardSize={motherboardSize}
