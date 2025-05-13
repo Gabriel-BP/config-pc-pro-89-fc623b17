@@ -1,9 +1,9 @@
 
 import { ComponentCategory } from "@/types/components";
 import { useEffect, useState } from "react";
-import { ProcessorSelector } from "./ProcessorSelector";
+import ProcessorSelector from "./ProcessorSelector";
 import { GpuSelector } from "./GpuSelector";
-import { MotherboardSelector } from "./MotherboardSelector";
+import MotherboardSelector from "./MotherboardSelector";
 
 interface FilterPanelProps {
   category: ComponentCategory;
