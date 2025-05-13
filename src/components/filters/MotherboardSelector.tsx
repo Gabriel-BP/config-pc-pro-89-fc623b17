@@ -13,9 +13,7 @@ export default function MotherboardSelector({
   motherboardSize,
   onMotherboardSizeChange,
 }: MotherboardSelectorProps) {
-  const handleMotherboardSizeChange = (value: MotherboardSize, e: React.MouseEvent) => {
-    // Prevent the default button behavior which can cause page reloads
-    e.preventDefault();
+  const handleMotherboardSizeChange = (value: MotherboardSize) => {
     onMotherboardSizeChange(motherboardSize === value ? null : value);
   };
 
@@ -25,11 +23,11 @@ export default function MotherboardSelector({
         <Square className="w-6 h-6" />
         Tamaño de Placa Base
       </h2>
-      <div className="flex flex-col gap-4">
+      <div className="flex justify-center gap-4">
         <Button
           variant={motherboardSize === "ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange("ATX", e)}
+          onClick={() => handleMotherboardSizeChange("ATX")}
           aria-label="ATX"
           title="ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -43,7 +41,7 @@ export default function MotherboardSelector({
         <Button
           variant={motherboardSize === "Micro-ATX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange("Micro-ATX", e)}
+          onClick={() => handleMotherboardSizeChange("Micro-ATX")}
           aria-label="Micro-ATX"
           title="Micro-ATX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"
@@ -57,7 +55,7 @@ export default function MotherboardSelector({
         <Button
           variant={motherboardSize === "Mini-ITX" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleMotherboardSizeChange("Mini-ITX", e)}
+          onClick={() => handleMotherboardSizeChange("Mini-ITX")}
           aria-label="Mini-ITX"
           title="Mini-ITX"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-purple-900 hover:to-purple-950 flex items-center justify-center"

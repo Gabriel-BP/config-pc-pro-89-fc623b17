@@ -1,38 +1,36 @@
 
 import { Button } from "@/components/ui/button";
-import { Component } from "lucide-react";
+import { MonitorUp } from "lucide-react";
 
 type GpuBrand = "nvidia" | "amd" | null;
 
 interface GpuSelectorProps {
   gpuBrand: GpuBrand;
-  onGpuBrandChange: (brand: GpuBrand) => void;
+  onGpuChange: (brand: GpuBrand) => void;
 }
 
-export function GpuSelector({ gpuBrand, onGpuBrandChange }: GpuSelectorProps) {
-  const handleGpuBrandChange = (value: GpuBrand, e: React.MouseEvent) => {
-    // Prevent the default button behavior which can cause page reloads
-    e.preventDefault();
-    onGpuBrandChange(gpuBrand === value ? null : value);
+export default function GpuSelector({ gpuBrand, onGpuChange }: GpuSelectorProps) {
+  const handleGpuBrandChange = (value: GpuBrand) => {
+    onGpuChange(gpuBrand === value ? null : value);
   };
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
-        <Component className="w-6 h-6" />
+        <MonitorUp className="w-6 h-6" />
         Tarjeta Gráfica
       </h2>
-      <div className="flex flex-col gap-4">
+      <div className="flex justify-center gap-4">
         <Button
           variant={gpuBrand === "nvidia" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleGpuBrandChange("nvidia", e)}
+          onClick={() => handleGpuBrandChange("nvidia")}
           aria-label="NVIDIA"
           title="NVIDIA"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-green-900 hover:to-green-950"
         >
           <img
-            src="/lovable-uploads/e5003a63-78de-4f15-a16f-033cbed63300.png"
+            src="/lovable-uploads/eb7c955a-2b19-4c80-8db4-46cd7f425fc0.png"
             alt="NVIDIA"
             className="w-12 h-12 object-contain rounded"
           />
@@ -40,7 +38,7 @@ export function GpuSelector({ gpuBrand, onGpuBrandChange }: GpuSelectorProps) {
         <Button
           variant={gpuBrand === "amd" ? "filterSelected" : "filter"}
           size="filter"
-          onClick={(e) => handleGpuBrandChange("amd", e)}
+          onClick={() => handleGpuBrandChange("amd")}
           aria-label="AMD"
           title="AMD"
           className="bg-gradient-to-b from-gray-800 to-gray-900 hover:from-red-900 hover:to-red-950"
