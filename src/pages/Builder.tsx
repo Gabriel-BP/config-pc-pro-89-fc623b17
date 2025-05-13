@@ -9,11 +9,13 @@ import InteractiveBackground from "@/components/InteractiveBackground";
 import { useFilters } from "@/context/FilterContext";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { FilterPanel } from "@/components/filters/FilterPanel";
 
 export default function Builder() {
   const [selectedCategory, setSelectedCategory] = useState<ComponentCategory | null>(
     null
   );
+  const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   
   // Get filters and selectedComponents from context
   const { filters, selectedComponents, setSelectedComponents } = useFilters();
@@ -42,7 +44,13 @@ export default function Builder() {
       setSelectedCategory(null);
     } else {
       setSelectedCategory(category);
+      // Reset component-specific filters when changing categories
+      setComponentFilters({});
     }
+  };
+
+  const handleFilterChange = (newFilters: Record<string, any>) => {
+    setComponentFilters(newFilters);
   };
 
   return (
@@ -77,19 +85,46 @@ export default function Builder() {
                 <ComponentList
                   category={selectedCategory}
                   onSelectComponent={handleSelectComponent}
-                  filters={filters}
+                  filters={componentFilters}
                 />
               </div>
             )}
           </div>
-          <div className="animate-fade-in">
+          <div className="space-y-8 animate-fade-in">
             <BuildSummary
               selectedComponents={selectedComponents}
               onRemoveComponent={handleRemoveComponent}
             />
+            
+            {/* Render FilterPanel below BuildSummary if a category is selected */}
+            {selectedCategory && (
+              <div className="animate-fade-in">
+                <h2 className="text-xl font-semibold text-white mb-3">Filtros de {getCategoryDisplayName(selectedCategory)}</h2>
+                <FilterPanel 
+                  category={selectedCategory}
+                  onFilterChange={handleFilterChange}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>
     </div>
   );
+}
+
+// Helper function to get display name for category
+function getCategoryDisplayName(category: ComponentCategory): string {
+  const categoryNames: Record<ComponentCategory, string> = {
+    "case": "Gabinete",
+    "cpu": "Procesador",
+    "gpu": "Tarjeta Gráfica",
+    "motherboard": "Placa Base",
+    "power-supply": "Fuente de Alimentación",
+    "memory": "Memoria RAM",
+    "storage": "Almacenamiento",
+    "cooler": "Refrigeración"
+  };
+  
+  return categoryNames[category] || category;
 }

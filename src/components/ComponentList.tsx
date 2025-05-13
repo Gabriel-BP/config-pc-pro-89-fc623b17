@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
@@ -6,7 +7,6 @@ import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
 import { ComponentGrid } from "./components/ComponentGrid";
 import { ComponentListPagination } from "./components/ComponentListPagination";
-import { FilterPanel } from "./filters/FilterPanel";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -14,59 +14,20 @@ interface ComponentListProps {
   filters?: Record<string, any>;
 }
 
-export function ComponentList({ category, onSelectComponent, filters: contextFilters = {} }: ComponentListProps) {
+export function ComponentList({ category, onSelectComponent, filters = {} }: ComponentListProps) {
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   const itemsPerPage = 14;
-
-  // Map the filters to the backend expected format with exact values needed by MongoDB
-  const mappedContextFilters = useMemo(() => {
-    console.log('Mapping context filters for category:', category, contextFilters);
-    const result: Record<string, any> = {};
-    
-    // Map motherboardSize to the exact format stored in the database
-    if (contextFilters.motherboardSize) {
-      result.motherboardSize = contextFilters.motherboardSize;
-      console.log(`Set motherboardSize filter to: ${result.motherboardSize}`);
-    }
-
-    // Add processor brand filter
-    if (contextFilters.processorBrand) {
-      result.processorBrand = contextFilters.processorBrand;
-      console.log(`Set processorBrand filter to: ${result.processorBrand}`);
-    }
-    
-    // Add socket filter - send as-is and let the server handle the formatting
-    if (contextFilters.socket) {
-      result.socket = contextFilters.socket;
-      console.log(`Set socket filter to: ${result.socket}`);
-    }
-    
-    // Add GPU brand filter (NVIDIA, AMD)
-    if (contextFilters.gpuBrand) {
-      result.gpuBrand = contextFilters.gpuBrand;
-      console.log(`Set gpuBrand filter to: ${result.gpuBrand}`);
-    }
-
-    return result;
-  }, [contextFilters, category]);
-
-  // Combine context filters with component-specific filters
-  const combinedFilters = useMemo(() => {
-    return { ...mappedContextFilters, ...componentFilters };
-  }, [mappedContextFilters, componentFilters]);
 
   // Add debugging to see what filters are being applied
   console.log('Component category:', category);
-  console.log('Context filters:', contextFilters);
-  console.log('Combined filters being sent to API:', combinedFilters);
+  console.log('Filters being sent to API:', filters);
 
   const { data: components, isLoading } = useQuery({
-    queryKey: ["components", category, combinedFilters],
-    queryFn: () => getComponents(category, combinedFilters),
+    queryKey: ["components", category, filters],
+    queryFn: () => getComponents(category, filters),
   });
 
   // Add debugging for received components
@@ -132,12 +93,6 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
     }
   };
 
-  const handleFilterChange = (newFilters: Record<string, any>) => {
-    setComponentFilters(newFilters);
-    // Reset to first page when filters change
-    setCurrentPage(1);
-  };
-
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -148,8 +103,6 @@ export function ComponentList({ category, onSelectComponent, filters: contextFil
 
   return (
     <>
-      <FilterPanel category={category} onFilterChange={handleFilterChange} />
-      
       <SortControls onSort={setSortOption} currentSort={sortOption} />
       
       <ComponentGrid 

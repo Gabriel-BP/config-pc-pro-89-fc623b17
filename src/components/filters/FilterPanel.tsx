@@ -32,7 +32,8 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
     onFilterChange(newFilters);
   };
 
-  const resetFilters = () => {
+  const resetFilters = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent page reload
     setNameFilter("");
     setFilters({});
     onFilterChange({});
@@ -40,8 +41,8 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
 
   return (
     <div className="bg-gray-900/50 rounded-lg border border-white/10 backdrop-blur-sm p-4 mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1">
+      <div className="space-y-3">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Buscar por nombre..."
@@ -50,14 +51,19 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
             className="pl-10 bg-black/30 border-white/10 text-white"
           />
         </div>
+        
         <Collapsible open={openFilters} onOpenChange={setOpenFilters}>
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-md bg-black/30 hover:bg-black/50 border border-white/10">
+            <Button 
+              variant="ghost" 
+              className="flex items-center gap-2 w-full justify-between bg-black/30 hover:bg-black/50 border border-white/10 mt-2"
+            >
+              <span>Filtros específicos</span>
               <Filter className="h-4 w-4" />
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 gap-4 mt-4">
               {renderCategoryFilters(category, filters, handleFilterChange)}
             </div>
             <div className="flex justify-end mt-4">
@@ -86,24 +92,6 @@ function renderCategoryFilters(
     case "case":
       return (
         <>
-          <FilterCheckbox
-            id="factor_de_forma_atx"
-            label="ATX"
-            checked={filters.factor_de_forma_atx}
-            onChange={(checked) => handleFilterChange("factor_de_forma_atx", checked)}
-          />
-          <FilterCheckbox
-            id="factor_de_forma_micro_atx"
-            label="Micro-ATX"
-            checked={filters.factor_de_forma_micro_atx}
-            onChange={(checked) => handleFilterChange("factor_de_forma_micro_atx", checked)}
-          />
-          <FilterCheckbox
-            id="factor_de_forma_mini_itx"
-            label="Mini-ITX"
-            checked={filters.factor_de_forma_mini_itx}
-            onChange={(checked) => handleFilterChange("factor_de_forma_mini_itx", checked)}
-          />
           <FilterSlider
             id="longitud_maxima_de_gpu"
             label="Longitud máx. GPU (mm)"
@@ -114,8 +102,19 @@ function renderCategoryFilters(
             step={10}
           />
           <FilterSelect
+            id="factores_de_forma"
+            label="Factor de Forma"
+            value={filters.factores_de_forma || ""}
+            onChange={(value) => handleFilterChange("factores_de_forma", value)}
+            options={[
+              { value: "ATX", label: "ATX" },
+              { value: "Micro ATX", label: "Micro-ATX" },
+              { value: "Mini ITX", label: "Mini-ITX" },
+            ]}
+          />
+          <FilterSelect
             id="ranuras_de_expansion"
-            label="Ranuras de expansión"
+            label="Nº Ranuras de Expansión"
             value={filters.ranuras_de_expansion || ""}
             onChange={(value) => handleFilterChange("ranuras_de_expansion", value)}
             options={[
@@ -131,19 +130,19 @@ function renderCategoryFilters(
         <>
           <FilterCheckbox
             id="refrigerado_por_agua"
-            label="Refrigeración líquida"
+            label="Refrigeración Líquida"
             checked={filters.refrigerado_por_agua}
             onChange={(checked) => handleFilterChange("refrigerado_por_agua", checked)}
           />
           <FilterCheckbox
             id="sin_ventilador"
-            label="Pasivo (sin ventilador)"
+            label="Pasivo"
             checked={filters.sin_ventilador}
             onChange={(checked) => handleFilterChange("sin_ventilador", checked)}
           />
           <FilterSlider
             id="ruido_maximo"
-            label="Ruido máximo (dB)"
+            label="Ruido Máximo (dB)"
             value={filters.ruido_maximo || [0, 50]}
             onChange={(value) => handleFilterChange("ruido_maximo", value)}
             min={0}
@@ -152,7 +151,7 @@ function renderCategoryFilters(
           />
           <FilterSlider
             id="rpm_maximas"
-            label="RPM máximas"
+            label="RPM Máximas"
             value={filters.rpm_maximas || [0, 2500]}
             onChange={(value) => handleFilterChange("rpm_maximas", value)}
             min={0}
@@ -182,6 +181,15 @@ function renderCategoryFilters(
             max={24}
             step={2}
           />
+          <FilterSlider
+            id="longitud"
+            label="Longitud (mm)"
+            value={filters.longitud || [0, 400]}
+            onChange={(value) => handleFilterChange("longitud", value)}
+            min={0}
+            max={400}
+            step={10}
+          />
           <FilterSelect
             id="tipo_de_memoria"
             label="Tipo de memoria"
@@ -193,24 +201,6 @@ function renderCategoryFilters(
               { value: "HBM2", label: "HBM2" },
             ]}
           />
-          <FilterSlider
-            id="tdp"
-            label="Consumo TDP (W)"
-            value={filters.tdp || [0, 500]}
-            onChange={(value) => handleFilterChange("tdp", value)}
-            min={0}
-            max={500}
-            step={25}
-          />
-          <FilterSlider
-            id="longitud"
-            label="Longitud (mm)"
-            value={filters.longitud || [0, 400]}
-            onChange={(value) => handleFilterChange("longitud", value)}
-            min={0}
-            max={400}
-            step={10}
-          />
           <FilterSelect
             id="interfaz"
             label="Interfaz"
@@ -221,6 +211,15 @@ function renderCategoryFilters(
               { value: "PCIe 4.0 x16", label: "PCIe 4.0 x16" },
               { value: "PCIe 5.0 x16", label: "PCIe 5.0 x16" },
             ]}
+          />
+          <FilterSlider
+            id="tdp"
+            label="Consumo TDP (W)"
+            value={filters.tdp || [0, 500]}
+            onChange={(value) => handleFilterChange("tdp", value)}
+            min={0}
+            max={500}
+            step={25}
           />
         </>
       );
@@ -514,6 +513,7 @@ function renderCategoryFilters(
   }
 }
 
+// Helper components for filters
 interface FilterSliderProps {
   id: string;
   label: string;
