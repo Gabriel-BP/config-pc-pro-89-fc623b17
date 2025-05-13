@@ -1,8 +1,8 @@
 
 import { useFilters } from "@/context/FilterContext";
 import { ProcessorSelector } from "./ProcessorSelector";
-import { MotherboardSelector } from "./MotherboardSelector";
-import { GpuSelector } from "./GpuSelector";
+import MotherboardSelector from "./MotherboardSelector";
+import GpuSelector from "./GpuSelector";
 
 export function FiltersSidebar() {
   const { filters, setFilters } = useFilters();
