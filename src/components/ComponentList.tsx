@@ -108,11 +108,11 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
         if (filtersChanged && Object.keys(processedFilters).length > 0) {
           toast.success(`Se encontraron ${data.length} componentes`);
         }
+      },
+      onError: (err: Error) => {
+        console.error('Error fetching components:', err);
+        toast.error('Error al cargar los componentes');
       }
-    },
-    onError: (err) => {
-      console.error('Error fetching components:', err);
-      toast.error('Error al cargar los componentes');
     }
   });
 
