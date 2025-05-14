@@ -3,89 +3,30 @@ import { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useFilters } from "@/context/FilterContext";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import ValidationProgress from "@/components/validation/ValidationProgress";
 import ValidationResults from "@/components/validation/ValidationResults";
-import { validateBuild } from "@/lib/axios";
-import { toast } from "sonner";
 
 export default function Validation() {
   const navigate = useNavigate();
-  const { selectedComponents } = useFilters();
   const [validationComplete, setValidationComplete] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [validationResults, setValidationResults] = useState<{
-    isValid: boolean;
-    errors: string[];
-    details: string[];
-  }>({
-    isValid: true,
-    errors: [],
-    details: []
-  });
-
-  const getComponentNames = () => {
-    return Object.values(selectedComponents).map(component => component.Nombre);
-  };
 
   useEffect(() => {
-    // Simulamos progreso gradual
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
+    // Simulate validation progress
+    const timer = setInterval(() => {
+      setProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(timer);
+          setValidationComplete(true);
+          return 100;
         }
-        return prev + 10;
+        return prevProgress + 5;
       });
-    }, 300);
-
-    // Hacemos la validación real
-    const componentNames = getComponentNames();
-    
-    if (componentNames.length === 0) {
-      toast.error("No hay componentes seleccionados para validar");
-      navigate("/builder");
-      return;
-    }
-
-    const validateComponents = async () => {
-      try {
-        const results = await validateBuild(componentNames);
-        
-        // Una vez tenemos la respuesta, establecemos los resultados
-        setValidationResults({
-          isValid: results.isValid,
-          errors: results.errors || [],
-          details: results.details || []
-        });
-        
-        // Completamos la barra de progreso y mostramos el resultado
-        setProgress(100);
-        setTimeout(() => {
-          setValidationComplete(true);
-        }, 500);
-        
-      } catch (error) {
-        console.error("Error durante la validación:", error);
-        toast.error("Error al validar la configuración. Intente nuevamente.");
-        setProgress(100);
-        setValidationResults({
-          isValid: false,
-          errors: ["Error al validar la configuración. Verifique la conexión con el servidor."],
-          details: []
-        });
-        setTimeout(() => {
-          setValidationComplete(true);
-        }, 500);
-      }
-    };
-
-    validateComponents();
+    }, 150);
 
     return () => {
-      clearInterval(progressInterval);
+      clearInterval(timer);
     };
   }, []);
 
@@ -112,11 +53,7 @@ export default function Validation() {
           {!validationComplete ? (
             <ValidationProgress progress={progress} />
           ) : (
-            <ValidationResults 
-              isValid={validationResults.isValid}
-              errors={validationResults.errors}
-              details={validationResults.details}
-            />
+            <ValidationResults />
           )}
         </div>
       </main>

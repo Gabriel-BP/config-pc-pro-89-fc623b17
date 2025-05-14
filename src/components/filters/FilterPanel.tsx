@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ComponentCategory } from "@/types/components";
 import { Input } from "@/components/ui/input";
@@ -6,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 
 interface FilterPanelProps {
   category: ComponentCategory;
@@ -20,7 +19,6 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
   const [nameFilter, setNameFilter] = useState("");
   const [openFilters, setOpenFilters] = useState(true);
   const [filters, setFilters] = useState<Record<string, any>>({});
-  const activeFiltersCount = Object.keys(filters).filter(key => key !== 'name' && filters[key] !== undefined).length;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -31,8 +29,6 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
   const handleFilterChange = (key: string, value: any) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    
-    console.log(`Setting filter ${key}:`, value);
     onFilterChange(newFilters);
   };
 
@@ -41,7 +37,6 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
     setNameFilter("");
     setFilters({});
     onFilterChange({});
-    toast.success("Filtros restablecidos");
   };
 
   return (
@@ -55,17 +50,6 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
             onChange={handleNameChange}
             className="pl-10 bg-black/30 border-white/10 text-white"
           />
-          {nameFilter && (
-            <button 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 hover:text-white"
-              onClick={() => {
-                setNameFilter("");
-                handleFilterChange("name", "");
-              }}
-            >
-              <X size={16} />
-            </button>
-          )}
         </div>
         
         <Collapsible open={openFilters} onOpenChange={setOpenFilters}>
@@ -74,12 +58,7 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
               variant="ghost" 
               className="flex items-center gap-2 w-full justify-between bg-black/30 hover:bg-black/50 border border-white/10 mt-2"
             >
-              <div className="flex items-center gap-2">
-                <span>Filtros específicos</span>
-                {activeFiltersCount > 0 && (
-                  <Badge className="bg-blue-600 hover:bg-blue-700">{activeFiltersCount}</Badge>
-                )}
-              </div>
+              <span>Filtros específicos</span>
               <Filter className="h-4 w-4" />
             </Button>
           </CollapsibleTrigger>
@@ -93,7 +72,6 @@ export function FilterPanel({ category, onFilterChange }: FilterPanelProps) {
                 size="sm"
                 onClick={resetFilters}
                 className="bg-black/30 border-white/10 hover:bg-black/50 text-white"
-                disabled={activeFiltersCount === 0 && !nameFilter}
               >
                 Restablecer filtros
               </Button>
@@ -194,16 +172,6 @@ function renderCategoryFilters(
     case "gpu":
       return (
         <>
-          <FilterSelect
-            id="gpuBrand"
-            label="Fabricante"
-            value={filters.gpuBrand || ""}
-            onChange={(value) => handleFilterChange("gpuBrand", value)}
-            options={[
-              { value: "nvidia", label: "NVIDIA" },
-              { value: "amd", label: "AMD" },
-            ]}
-          />
           <FilterSlider
             id="memoria"
             label="Memoria VRAM (GB)"
@@ -388,7 +356,6 @@ function renderCategoryFilters(
             value={filters.calificacion_de_eficiencia || ""}
             onChange={(value) => handleFilterChange("calificacion_de_eficiencia", value)}
             options={[
-              { value: "80+", label: "80+" },
               { value: "80+ White", label: "80+ White" },
               { value: "80+ Bronze", label: "80+ Bronze" },
               { value: "80+ Silver", label: "80+ Silver" },
@@ -428,16 +395,6 @@ function renderCategoryFilters(
     case "cpu":
       return (
         <>
-          <FilterSelect
-            id="processorBrand"
-            label="Fabricante"
-            value={filters.processorBrand || ""}
-            onChange={(value) => handleFilterChange("processorBrand", value)}
-            options={[
-              { value: "intel", label: "Intel" },
-              { value: "amd", label: "AMD" },
-            ]}
-          />
           <FilterSelect
             id="enchufe"
             label="Socket"
@@ -572,7 +529,7 @@ function FilterSlider({ id, label, value, onChange, min, max, step }: FilterSlid
     <div className="space-y-2">
       <div className="flex justify-between">
         <Label htmlFor={id} className="text-sm text-white">{label}</Label>
-        <span className="text-xs text-white bg-gray-800/70 px-2 py-0.5 rounded">{value[0]} - {value[1]}</span>
+        <span className="text-xs text-white">{value[0]} - {value[1]}</span>
       </div>
       <Slider
         id={id}

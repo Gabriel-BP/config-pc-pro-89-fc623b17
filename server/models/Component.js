@@ -1,4 +1,3 @@
-
 const { Schema, model } = require('mongoose');
 
 const priceSchema = new Schema({
@@ -25,27 +24,7 @@ const componentSchema = new Schema({
     URL: String
 }, { collection: '' }); // La colección se inyectará dinámicamente
 
-// Helper function to extract numeric value from a string field
-function extractNumericValue(value) {
-    if (typeof value === 'number') return value;
-    if (!value || typeof value !== 'string') return null;
-    
-    // Try to extract numbers like "4.70" from strings like "4.70 GHz"
-    const match = value.match(/(\d+(\.\d+)?)/);
-    return match ? parseFloat(match[1]) : null;
-}
-
-// Add pre-find middleware to process data before returning
-componentSchema.pre('find', function() {
-    this.setOptions({ lean: true });
-});
-
-// Function to get a component model linked to a collection
+// Función helper para obtener un modelo ligado a una colección
 function getComponentModel(collectionName) {
     return model(collectionName, componentSchema, collectionName);
 }
-
-module.exports = {
-    getComponentModel,
-    extractNumericValue
-};
