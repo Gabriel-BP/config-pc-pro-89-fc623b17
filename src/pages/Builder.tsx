@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Component, ComponentCategory } from "@/types/components";
 import { CategorySelector } from "@/components/CategorySelector";
@@ -17,17 +16,13 @@ export default function Builder() {
   );
   const [componentFilters, setComponentFilters] = useState<Record<string, any>>({});
   
-  // Get filters and selectedComponents from context
   const { filters, selectedComponents, setSelectedComponents } = useFilters();
 
-  // Apply global filters when component category changes
   useEffect(() => {
     if (selectedCategory) {
-      // Create a new filters object based on the currently selected category
       const newFilters: Record<string, any> = {};
       
       if (selectedCategory === "cpu") {
-        // Apply processorBrand and socket filters for CPUs
         if (filters.processorBrand) {
           newFilters.processorBrand = filters.processorBrand;
         }
@@ -36,13 +31,11 @@ export default function Builder() {
         }
       } 
       else if (selectedCategory === "gpu") {
-        // Apply gpuBrand filter for GPUs
         if (filters.gpuBrand) {
           newFilters.gpuBrand = filters.gpuBrand;
         }
       }
       else if (selectedCategory === "motherboard") {
-        // Apply motherboardSize and socket filters for motherboards
         if (filters.motherboardSize) {
           newFilters.factor_de_forma = filters.motherboardSize;
         }
@@ -51,15 +44,11 @@ export default function Builder() {
         }
       }
       
-      // Log the applied filters for debugging
       console.log(`Applying global filters for ${selectedCategory}:`, newFilters);
-      
-      // Set the component filters
       setComponentFilters(newFilters);
     }
   }, [selectedCategory, filters]);
 
-  // Log current filters for debugging
   console.log('Current filters in Builder page:', filters);
 
   const handleSelectComponent = (component: Component) => {
@@ -78,29 +67,20 @@ export default function Builder() {
   };
 
   const handleCategorySelect = (category: ComponentCategory) => {
-    // If the category is already selected, deselect it
     if (selectedCategory === category) {
       setSelectedCategory(null);
     } else {
       setSelectedCategory(category);
-      // Reset component-specific filters when changing categories
       setComponentFilters({});
     }
   };
 
   const handleFilterChange = (newFilters: Record<string, any>) => {
-    // Merge the global filters with component-specific filters
-    const mergedFilters = { ...componentFilters };
-    
-    // Add any new filters from the FilterPanel
-    Object.keys(newFilters).forEach(key => {
-      if (newFilters[key] !== undefined && newFilters[key] !== "") {
-        mergedFilters[key] = newFilters[key];
-      }
-    });
-    
-    console.log('Applied filters:', mergedFilters);
-    setComponentFilters(mergedFilters);
+    const mergedFilters = { ...componentFilters, ...newFilters };
+    const sanitized = sanitizeFilters(mergedFilters);
+
+    console.log('Applied sanitized filters:', sanitized);
+    setComponentFilters(sanitized);
   };
 
   return (
@@ -146,7 +126,6 @@ export default function Builder() {
               onRemoveComponent={handleRemoveComponent}
             />
             
-            {/* Render FilterPanel below BuildSummary if a category is selected */}
             {selectedCategory && (
               <div className="animate-fade-in">
                 <h2 className="text-xl font-semibold text-white mb-3">Filtros de {getCategoryDisplayName(selectedCategory)}</h2>
@@ -163,7 +142,24 @@ export default function Builder() {
   );
 }
 
-// Helper function to get display name for category
+function sanitizeFilters(filters: Record<string, any>) {
+  const sanitized: Record<string, any> = {};
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      if (value[0] !== value[1]) {
+        sanitized[key] = value;
+      }
+    } else if (typeof value === 'boolean') {
+      sanitized[key] = value ? 'true' : 'false';
+    } else if (typeof value === 'string' && value.trim() !== "") {
+      sanitized[key] = value;
+    }
+  });
+
+  return sanitized;
+}
+
 function getCategoryDisplayName(category: ComponentCategory): string {
   const categoryNames: Record<ComponentCategory, string> = {
     "case": "Gabinete",
