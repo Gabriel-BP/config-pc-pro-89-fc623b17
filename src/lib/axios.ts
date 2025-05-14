@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { Component, ComponentCategory } from "@/types/components";
 
@@ -16,8 +15,13 @@ export async function getComponents(category: ComponentCategory, filters: Record
     Object.entries(filters).forEach(([key, value]) => {
       // Handle arrays (for sliders)
       if (Array.isArray(value)) {
-        // Convert array to JSON string
-        params.append(key, JSON.stringify(value));
+        // Check if min and max are the same, if so send as single value
+        if (value.length === 2 && value[0] === value[1]) {
+          params.append(key, value[0].toString());
+        } else {
+          // Otherwise send the array as a JSON string
+          params.append(key, JSON.stringify(value));
+        }
       } 
       // Handle boolean values
       else if (typeof value === 'boolean') {

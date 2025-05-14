@@ -525,11 +525,19 @@ interface FilterSliderProps {
 }
 
 function FilterSlider({ id, label, value, onChange, min, max, step }: FilterSliderProps) {
+  // Ensure we're handling slider values properly
+  const handleSliderChange = (newValue: number[]) => {
+    // If min and max are the same, we'll still pass the array but our axios function will handle it
+    onChange(newValue);
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex justify-between">
         <Label htmlFor={id} className="text-sm text-white">{label}</Label>
-        <span className="text-xs text-white">{value[0]} - {value[1]}</span>
+        <span className="text-xs text-white">
+          {value[0] === value[1] ? value[0] : `${value[0]} - ${value[1]}`}
+        </span>
       </div>
       <Slider
         id={id}
@@ -537,7 +545,7 @@ function FilterSlider({ id, label, value, onChange, min, max, step }: FilterSlid
         max={max}
         step={step}
         value={value}
-        onValueChange={onChange}
+        onValueChange={handleSliderChange}
         className="w-full"
       />
     </div>

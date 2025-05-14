@@ -52,6 +52,10 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
           // Make sure we're sending socket in the expected format for the backend
           result.enchufe = value;
         }
+        else if (key === "nucleos" && Array.isArray(value) && value[0] === value[1]) {
+          // If min and max are the same for nucleos, send as single value
+          result.nucleos = value[0];
+        }
         else {
           // Pass through other filters
           result[key] = value;
@@ -61,6 +65,10 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
       else if (category === "gpu") {
         if (key === "gpuBrand") {
           result.gpuBrand = value;
+        }
+        else if (key === "memoria" && Array.isArray(value) && value[0] === value[1]) {
+          // If min and max are the same for memoria, send as single value
+          result.memoria = value[0];
         }
         else {
           // Pass through other filters
@@ -77,14 +85,22 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
           // Make sure we're sending socket in the expected format for the backend
           result.enchufe = value;
         }
+        else if (key === "ranuras_de_ram" && Array.isArray(value) && value[0] === value[1]) {
+          // If min and max are the same for ranuras_de_ram, send as single value
+          result.ranuras_de_ram = value[0];
+        }
         else {
           // Pass through other filters
           result[key] = value;
         }
       } 
       else {
-        // For other categories, pass through filters as-is
-        result[key] = value;
+        // For other categories, handle arrays with same min/max values
+        if (Array.isArray(value) && value.length === 2 && value[0] === value[1]) {
+          result[key] = value[0];
+        } else {
+          result[key] = value;
+        }
       }
     });
     
