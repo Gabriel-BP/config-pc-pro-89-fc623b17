@@ -1,5 +1,8 @@
+
 from neo4j import GraphDatabase
 import re
+import sys
+import json
 
 # Configuración Neo4j
 NEO4J_URI = "bolt://localhost:7687"
@@ -158,20 +161,35 @@ class PCValidator:
                 print(f" - {error}")
         else:
             print("\n✅ Configuración válida - No se encontraron incompatibilidades.")
+        
+        return {
+            "valid": len(errores) == 0,
+            "errors": errores,
+            "details": detalles
+        }
 
 if __name__ == "__main__":
-    componentes = [
-        'AMD Ryzen 9 7900X 4.70GHz AM5',
-        'ASRock Z87 Extreme3 LGA1150 ATX',
-        'Samsung M386A4G40DM0-CPB 32 GB (1x 32GB) 2133MHz DDR4 C15',
-        'Transcend MTE245S 250GB M.2-2280',
-        'EVGA 550 B5 550W',
-        'KOLINK Observatory Y ARGB ATX Mid Tower',
-        'Xilence LQ360',
-        'Gigabyte AORUS MASTER 8GB GeForce RTX 3070'
-    ]
+    # Si hay argumentos, asumimos que el primero es un JSON con los componentes
+    if len(sys.argv) > 1:
+        try:
+            componentes = json.loads(sys.argv[1])
+            print(f"\nComponentes introducidos:\n{componentes}")
+        except json.JSONDecodeError:
+            print("Error: El argumento no es un JSON válido")
+            sys.exit(1)
+    else:
+        componentes = [
+            'AMD Ryzen 9 7900X 4.70GHz AM5',
+            'ASRock Z87 Extreme3 LGA1150 ATX',
+            'Samsung M386A4G40DM0-CPB 32 GB (1x 32GB) 2133MHz DDR4 C15',
+            'Transcend MTE245S 250GB M.2-2280',
+            'EVGA 550 B5 550W',
+            'KOLINK Observatory Y ARGB ATX Mid Tower',
+            'Xilence LQ360',
+            'Gigabyte AORUS MASTER 8GB GeForce RTX 3070'
+        ]
+        print(f"\nComponentes introducidos:\n{componentes}")
 
-    print(f"\nComponentes introducidos:\n{componentes}")
     validador = PCValidator()
     validador.validar_compatibilidad(componentes)
     validador.close()

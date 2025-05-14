@@ -10,3 +10,13 @@ export const getComponents = async (category: string, filters?: any) => {
   const response = await api.get(`/components/${category}`, { params });
   return response.data;
 };
+
+export const validateBuild = async (components: string[]) => {
+  try {
+    const response = await api.post('/validation/validate-build', { components });
+    return response.data;
+  } catch (error) {
+    console.error("Error al validar la configuración:", error);
+    throw error;
+  }
+};
