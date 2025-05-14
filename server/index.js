@@ -1,4 +1,3 @@
-
 // server/index.js
 require('dotenv').config();
 const express = require('express');
@@ -8,6 +7,8 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const DEBUG_FILTERS = process.env.DEBUG_FILTERS === 'true';
 
 const COLLECTIONS = {
     case: 'productos_procesados/case_productos',
@@ -24,6 +25,16 @@ mongoose
     .connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Conectado a MongoDB'))
     .catch(err => console.error('❌ Error conectando a MongoDB:', err));
+
+// Helper function to extract numeric value from a string field
+function extractNumericValue(value) {
+    if (typeof value === 'number') return value;
+    if (!value || typeof value !== 'string') return null;
+    
+    // Try to extract numbers like "4.70" from strings like "4.70 GHz"
+    const match = value.match(/(\d+(\.\d+)?)/);
+    return match ? parseFloat(match[1]) : null;
+}
 
 app.get('/api/components/:category', async (req, res) => {
     const { category } = req.params;
@@ -89,15 +100,36 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxCores = parseInt(req.query.nucleos[1]);
                     console.log(`Applying CPU cores filter: ${minCores} - ${maxCores}`);
                     
-                    // Verificar que Características.Núcleos exista y sea un número dentro del rango
+                    // Get a sample document to check the structure
+                    const sampleDoc = await mongoose.connection.db
+                        .collection(collName)
+                        .findOne({});
+                        
+                    if (DEBUG_FILTERS && sampleDoc) {
+                        console.log('Sample document structure for cores:', 
+                            sampleDoc.Características?.Núcleos || 'Field not found');
+                    }
+
+                    let numericFilter = {
+                        $or: []
+                    };
+                    
+                    // Add condition for when the field exists as a number
+                    numericFilter.$or.push({ nucleos: { $gte: minCores, $lte: maxCores } });
+                    
+                    // Add regex condition for string fields with numeric content
+                    const regexMinCores = minCores.toString();
+                    const regexMaxCores = maxCores.toString();
+                    
+                    // Match a field that has just a number within our range
+                    for (let i = minCores; i <= maxCores; i++) {
+                        numericFilter.$or.push({ 'Características.Núcleos': i.toString() });
+                    }
+                    
+                    // Add the cores filter to the main query
                     query = {
                         ...query,
-                        $or: [
-                            // Buscar en Características.Núcleos
-                            { 'Características.Núcleos': { $gte: minCores, $lte: maxCores } },
-                            // Buscar en la raíz del documento donde nucleos es un número
-                            { nucleos: { $gte: minCores, $lte: maxCores } }
-                        ]
+                        ...numericFilter
                     };
                 }
                 
@@ -107,15 +139,57 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxFreq = parseFloat(req.query.reloj_base[1]);
                     console.log(`Applying CPU base clock filter: ${minFreq} - ${maxFreq}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            // Buscar en Características.Frecuencia base
-                            { 'Características.Frecuencia base': { $gte: minFreq, $lte: maxFreq } },
-                            // Buscar en la raíz del documento
-                            { reloj_base: { $gte: minFreq, $lte: maxFreq } }
-                        ]
-                    };
+                    // Get a sample to check the data structure
+                    const sampleDoc = await mongoose.connection.db
+                        .collection(collName)
+                        .findOne({});
+                        
+                    if (DEBUG_FILTERS && sampleDoc) {
+                        console.log('Sample document structure for base clock:', 
+                            sampleDoc.Características?.['Reloj base'] || 'Field not found');
+                    }
+                    
+                    // Use aggregation to extract and filter numeric values
+                    const docs = await mongoose.connection.db
+                        .collection(collName)
+                        .aggregate([
+                            {
+                                $addFields: {
+                                    extractedClockValue: {
+                                        $let: {
+                                            vars: {
+                                                clockString: { $ifNull: ["$Características.Reloj base", ""] }
+                                            },
+                                            in: {
+                                                $cond: {
+                                                    if: { $eq: [{ $type: "$$clockString" }, "string"] },
+                                                    then: {
+                                                        $toDouble: {
+                                                            $arrayElemAt: [
+                                                                { $regexFind: { input: "$$clockString", regex: /(\d+(\.\d+)?)/ } }.captures,
+                                                                0
+                                                            ]
+                                                        }
+                                                    },
+                                                    else: null
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                $match: {
+                                    $or: [
+                                        { extractedClockValue: { $gte: minFreq, $lte: maxFreq } },
+                                        { reloj_base: { $gte: minFreq, $lte: maxFreq } }
+                                    ]
+                                }
+                            }
+                        ])
+                        .toArray();
+                    
+                    return res.json(docs);
                 }
                 
                 // Filtro de TDP
@@ -748,4 +822,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 API corriendo en http://localhost:${PORT}/api`);
 });
-

@@ -41,3 +41,25 @@ export function extractNumberFromString(value: string | undefined): number | und
   return undefined;
 }
 
+/**
+ * Extract and normalize numeric values for comparative operations 
+ * For use with fields that might store values like "4.70 GHz"
+ */
+export function normalizeNumericField(value: any): number | null {
+  // If already a number, return it
+  if (typeof value === 'number') return value;
+  
+  // If undefined or null, return null
+  if (value === undefined || value === null) return null;
+  
+  // If string, try to extract number
+  if (typeof value === 'string') {
+    // Extract numbers like "4.70" from strings like "4.70 GHz"
+    const numberMatch = value.match(/(\d+(\.\d+)?)/);
+    if (numberMatch) {
+      return parseFloat(numberMatch[1]);
+    }
+  }
+  
+  return null;
+}
