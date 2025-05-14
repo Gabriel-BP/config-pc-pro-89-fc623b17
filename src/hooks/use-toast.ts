@@ -1,7 +1,7 @@
 
-import { toast } from "sonner";
+import { toast } from "sonner"
 
-export { toast };
+export { toast }
 export const useToast = () => {
-  return { toast };
-};
+  return { toast }
+}
