@@ -2,6 +2,12 @@
 
 function buildProcessorFilters(query) {
     const filters = {};
+    if (query.processorBrand) {
+        filters["Marca"] = { $regex: query.processorBrand, $options: 'i' };
+    }
+    if (query.enchufe) {
+        filters["Características.Enchufe"] = { $regex: query.enchufe, $options: 'i' };
+    }
     if (query.nucleos) {
         filters["Características.Núcleos"] = { $gte: query.nucleos[0], $lte: query.nucleos[1] };
     }
@@ -11,20 +17,14 @@ function buildProcessorFilters(query) {
     if (query.reloj_base) {
         filters["Características.Reloj base"] = { $gte: `${query.reloj_base[0]} GHz`, $lte: `${query.reloj_base[1]} GHz` };
     }
-    if (query.enfriador_incluido) {
-        filters["Características.Enfriador incluido"] = query.enfriador_incluido === 'true' ? { $ne: "No" } : "No";
-    }
-    if (query.gpu_integrada) {
-        filters["Características.GPU integrada"] = query.gpu_integrada === 'true' ? { $ne: "", $exists: true } : { $in: ["", null] };
-    }
-    if (query.enchufe) {
-        filters["Características.Enchufe"] = query.enchufe;
-    }
     return filters;
 }
 
 function buildGPUFilters(query) {
     const filters = {};
+    if (query.gpuBrand) {
+        filters["Marca"] = { $regex: query.gpuBrand, $options: 'i' };
+    }
     if (query.memoria) {
         filters["Características.Memoria"] = { $gte: query.memoria[0], $lte: query.memoria[1] };
     }
@@ -45,6 +45,9 @@ function buildGPUFilters(query) {
 
 function buildMotherboardFilters(query) {
     const filters = {};
+    if (query.motherboardSize) {
+        filters["Características.Factor de forma"] = { $regex: query.motherboardSize, $options: 'i' };
+    }
     if (query.ranuras_de_ram) {
         filters["Características.Ranuras de RAM"] = { $gte: query.ranuras_de_ram[0], $lte: query.ranuras_de_ram[1] };
     }
