@@ -90,11 +90,11 @@ export function createNumericRangeQuery(fieldPath: string, minValue: number, max
                       then: {
                         $convert: {
                           input: { 
-                            $arrayElemAt: [
-                              { $regexFind: { input: `$${fieldPath}`, regex: /(\d+(\.\d+)?)/ } }.captures, 
-                              0 
-                            ]
-                          },
+                            $regexFind: { 
+                              input: `$${fieldPath}`, 
+                              regex: /(\d+(\.\d+)?)/ 
+                            } 
+                          }.match,
                           to: "double",
                           onError: null,
                           onNull: null
@@ -118,3 +118,4 @@ export function createNumericRangeQuery(fieldPath: string, minValue: number, max
     }
   };
 }
+
