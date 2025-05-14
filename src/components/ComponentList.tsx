@@ -98,14 +98,16 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   const { data: components, isLoading, isError, error } = useQuery({
     queryKey: ["components", category, processedFilters],
     queryFn: () => getComponents(category, processedFilters),
-    onSuccess: (data) => {
-      // Check if filters changed and results came back
-      const filtersChanged = JSON.stringify(lastUsedFilters) !== JSON.stringify(processedFilters);
-      setLastUsedFilters(processedFilters);
-      
-      // Show toast if filters were applied and results changed
-      if (filtersChanged && Object.keys(processedFilters).length > 0) {
-        toast.success(`Se encontraron ${data.length} componentes`);
+    meta: {
+      onSuccess: (data: Component[]) => {
+        // Check if filters changed and results came back
+        const filtersChanged = JSON.stringify(lastUsedFilters) !== JSON.stringify(processedFilters);
+        setLastUsedFilters(processedFilters);
+        
+        // Show toast if filters were applied and results changed
+        if (filtersChanged && Object.keys(processedFilters).length > 0) {
+          toast.success(`Se encontraron ${data.length} componentes`);
+        }
       }
     },
     onError: (err) => {
