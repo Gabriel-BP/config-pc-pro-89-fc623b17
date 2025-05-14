@@ -7,6 +7,7 @@ import { SortControls } from "./SortControls";
 import { useState, useMemo } from "react";
 import { ComponentGrid } from "./components/ComponentGrid";
 import { ComponentListPagination } from "./components/ComponentListPagination";
+import { toast } from "@/hooks/use-toast";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -25,7 +26,7 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   console.log('Component category:', category);
   console.log('Filters being sent to API:', filters);
 
-  const { data: components = [], isLoading } = useQuery({
+  const { data: components = [], isLoading, isError, error } = useQuery({
     queryKey: ["components", category, filters],
     queryFn: () => getComponents(category, filters),
   });
@@ -37,8 +38,21 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
     console.log('No components found with these filters.');
   }
   
+  // Show toast if there's an error
+  if (isError && error) {
+    console.error("Error fetching components:", error);
+    toast({
+      title: "Error",
+      description: "No se pudieron cargar los componentes. Por favor, intente nuevamente.",
+      variant: "destructive",
+    });
+  }
+  
   const sortedComponents = useMemo(() => {
-    if (!components || !Array.isArray(components)) return [];
+    if (!components || !Array.isArray(components)) {
+      console.log("Components is not an array:", components);
+      return [];
+    }
     
     if (!sortOption) return components;
     
@@ -51,14 +65,14 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
         return componentsCopy.sort((a, b) => b.Nombre.localeCompare(a.Nombre));
       case "priceAsc":
         return componentsCopy.sort((a, b) => {
-          const priceA = a.Precios.Nuevos?.Precio.valor || 0;
-          const priceB = b.Precios.Nuevos?.Precio.valor || 0;
+          const priceA = a.Precios.Nuevos?.Precio.valor || a.Precios.Utilizados?.Precio.valor || 0;
+          const priceB = b.Precios.Nuevos?.Precio.valor || b.Precios.Utilizados?.Precio.valor || 0;
           return priceA - priceB;
         });
       case "priceDesc":
         return componentsCopy.sort((a, b) => {
-          const priceA = a.Precios.Nuevos?.Precio.valor || 0;
-          const priceB = b.Precios.Nuevos?.Precio.valor || 0;
+          const priceA = a.Precios.Nuevos?.Precio.valor || a.Precios.Utilizados?.Precio.valor || 0;
+          const priceB = b.Precios.Nuevos?.Precio.valor || b.Precios.Utilizados?.Precio.valor || 0;
           return priceB - priceA;
         });
       default:
@@ -67,7 +81,10 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   }, [components, sortOption]);
 
   const paginatedComponents = useMemo(() => {
-    if (!Array.isArray(sortedComponents)) return [];
+    if (!Array.isArray(sortedComponents)) {
+      console.log("sortedComponents is not an array:", sortedComponents);
+      return [];
+    }
     
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
