@@ -1,4 +1,3 @@
-
 import { Component } from "@/types/components";
 import { Button } from "@/components/ui/button";
 import { Trash, Plus, Minus, CheckCircle } from "lucide-react";
@@ -67,6 +66,25 @@ export function BuildSummary({
     return "-";
   };
 
+  const handleValidate = async () => {
+    navigate("/validation");
+    const componentesNombres = Object.values(selectedComponents).map(c => c?.Nombre).filter(Boolean);
+    console.log("Componentes seleccionados para validar:", componentesNombres);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ componentes: componentesNombres })
+      });
+
+      const data = await response.json();
+      console.log("Resultado validación Neo4j:", data.result);
+    } catch (error) {
+      console.error("❌ Error llamando a /api/validate:", error);
+    }
+  };
+
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="p-6">
@@ -133,10 +151,10 @@ export function BuildSummary({
             </TableRow>
           </TableBody>
         </Table>
-        
+
         <div className="mt-6 flex justify-end">
           <Button 
-            onClick={() => navigate('/validation')}
+            onClick={handleValidate}
             className="
               bg-gradient-to-r from-blue-600 to-purple-600
               hover:from-blue-700 hover:to-purple-700

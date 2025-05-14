@@ -107,6 +107,8 @@ app.get('/api/components/:category', async (req, res) => {
     }
 });
 
+app.post('/api/validate', require('./validate'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 API corriendo en http://localhost:${PORT}/api`);
