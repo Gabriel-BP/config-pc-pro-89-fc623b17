@@ -88,13 +88,20 @@ export function createNumericRangeQuery(fieldPath: string, minValue: number, max
                     $cond: {
                       if: { $eq: [{ $type: `$${fieldPath}` }, "string"] },
                       then: {
-                        $toDouble: { 
+                        $toDouble: {
                           $replaceAll: {
-                            input: { 
-                              $ifNull: [
-                                { $arrayElemAt: [{ $regexFind: { input: { $ifNull: [`$${fieldPath}`, ""] }, regex: /(\d+(\.\d+)?)/ } }.captures, 0] },
-                                ""
-                              ]
+                            input: {
+                              $let: {
+                                vars: {
+                                  regexResult: { $regexFind: { input: { $ifNull: [`$${fieldPath}`, ""] }, regex: /(\d+(\.\d+)?)/ } }
+                                },
+                                in: {
+                                  $ifNull: [
+                                    { $first: "$regexResult.match" },
+                                    ""
+                                  ]
+                                }
+                              }
                             },
                             find: " ",
                             replacement: ""
