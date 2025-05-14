@@ -63,3 +63,58 @@ export function normalizeNumericField(value: any): number | null {
   
   return null;
 }
+
+/**
+ * Create a MongoDB query for numeric range that handles both numeric fields
+ * and string fields with embedded numeric values
+ */
+export function createNumericRangeQuery(fieldPath: string, minValue: number, maxValue: number) {
+  return {
+    $expr: {
+      $and: [
+        // Check if the field exists
+        { $ne: [{ $type: `$${fieldPath}` }, "missing"] },
+        {
+          $let: {
+            vars: {
+              // Extract numeric value:
+              // If field is a number, use it directly
+              // If field is a string, extract numeric part using regex
+              extractedValue: {
+                $cond: {
+                  if: { $eq: [{ $type: `$${fieldPath}` }, "number"] },
+                  then: `$${fieldPath}`,
+                  else: {
+                    $cond: {
+                      if: { $eq: [{ $type: `$${fieldPath}` }, "string"] },
+                      then: {
+                        $convert: {
+                          input: { 
+                            $arrayElemAt: [
+                              { $regexFind: { input: `$${fieldPath}`, regex: /(\d+(\.\d+)?)/ } }.captures, 
+                              0 
+                            ]
+                          },
+                          to: "double",
+                          onError: null,
+                          onNull: null
+                        }
+                      },
+                      else: null
+                    }
+                  }
+                }
+              }
+            },
+            in: {
+              $and: [
+                { $gte: ["$$extractedValue", minValue] },
+                { $lte: ["$$extractedValue", maxValue] }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  };
+}

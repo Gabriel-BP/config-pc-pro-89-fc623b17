@@ -1,3 +1,4 @@
+
 // server/index.js
 require('dotenv').config();
 const express = require('express');
@@ -36,6 +37,50 @@ function extractNumericValue(value) {
     return match ? parseFloat(match[1]) : null;
 }
 
+// Helper function to create a MongoDB pipeline stage for numeric range filtering
+function createNumericRangeStage(fieldPaths, minValue, maxValue) {
+    const conditions = fieldPaths.map(path => ({
+        $let: {
+            vars: {
+                extractedValue: {
+                    $cond: {
+                        if: { $eq: [{ $type: `$${path}` }, "number"] },
+                        then: `$${path}`,
+                        else: {
+                            $cond: {
+                                if: { $eq: [{ $type: `$${path}` }, "string"] },
+                                then: {
+                                    $toDouble: {
+                                        $replaceAll: {
+                                            input: { 
+                                                $regexFind: { 
+                                                    input: { $ifNull: [`$${path}`, ""] }, 
+                                                    regex: /(\d+(\.\d+)?)/ 
+                                                }.match 
+                                            },
+                                            find: " ",
+                                            replacement: ""
+                                        }
+                                    }
+                                },
+                                else: null
+                            }
+                        }
+                    }
+                }
+            },
+            in: {
+                $and: [
+                    { $gte: ["$$extractedValue", minValue] },
+                    { $lte: ["$$extractedValue", maxValue] }
+                ]
+            }
+        }
+    }));
+
+    return { $match: { $or: conditions } };
+}
+
 app.get('/api/components/:category', async (req, res) => {
     const { category } = req.params;
     const collName = COLLECTIONS[category];
@@ -47,18 +92,21 @@ app.get('/api/components/:category', async (req, res) => {
         // Log all incoming filter parameters for debugging
         console.log('Received query params:', req.query);
         
-        // Construir el query basado en los filtros recibidos
-        let query = {};
+        // Start with an empty pipeline
+        const pipeline = [];
+        let useAggregation = false;
         
         // Aplicar filtros específicos según la categoría
         if (req.query) {
             // Filtro general por nombre para todas las categorías
             if (req.query.name) {
                 console.log(`Applying name filter: ${req.query.name}`);
-                query = { 
-                    ...query, 
-                    Nombre: { $regex: new RegExp(req.query.name, 'i') } 
-                };
+                pipeline.push({ 
+                    $match: { 
+                        Nombre: { $regex: new RegExp(req.query.name, 'i') } 
+                    }
+                });
+                useAggregation = true;
             }
             
             // Filtros para CPU
@@ -68,14 +116,15 @@ app.get('/api/components/:category', async (req, res) => {
                     const brand = req.query.processorBrand.toLowerCase();
                     console.log(`Applying CPU brand filter: ${brand}`);
                     
-                    // We need to check both the brand name and the product name as it appears in the database
-                    query = { 
-                        ...query, 
-                        $or: [
-                            { Nombre: { $regex: brand, $options: 'i' } },
-                            { Marca: { $regex: brand, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { Nombre: { $regex: brand, $options: 'i' } },
+                                { Marca: { $regex: brand, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de socket
@@ -83,14 +132,16 @@ app.get('/api/components/:category', async (req, res) => {
                     const socketValue = req.query.socket || req.query.enchufe;
                     if (socketValue && socketValue !== '') {
                         console.log(`Applying CPU socket filter: ${socketValue}`);
-                        // The socket might be in different fields or formats, so we try a more flexible approach
-                        query = { 
-                            ...query, 
-                            $or: [
-                                { 'Características.Enchufe': { $regex: socketValue, $options: 'i' } },
-                                { 'Características.Socket': { $regex: socketValue, $options: 'i' } }
-                            ]
-                        };
+                        
+                        pipeline.push({
+                            $match: {
+                                $or: [
+                                    { 'Características.Enchufe': { $regex: socketValue, $options: 'i' } },
+                                    { 'Características.Socket': { $regex: socketValue, $options: 'i' } }
+                                ]
+                            }
+                        });
+                        useAggregation = true;
                     }
                 }
                 
@@ -100,37 +151,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxCores = parseInt(req.query.nucleos[1]);
                     console.log(`Applying CPU cores filter: ${minCores} - ${maxCores}`);
                     
-                    // Get a sample document to check the structure
-                    const sampleDoc = await mongoose.connection.db
-                        .collection(collName)
-                        .findOne({});
-                        
-                    if (DEBUG_FILTERS && sampleDoc) {
-                        console.log('Sample document structure for cores:', 
-                            sampleDoc.Características?.Núcleos || 'Field not found');
-                    }
-
-                    let numericFilter = {
-                        $or: []
-                    };
-                    
-                    // Add condition for when the field exists as a number
-                    numericFilter.$or.push({ nucleos: { $gte: minCores, $lte: maxCores } });
-                    
-                    // Add regex condition for string fields with numeric content
-                    const regexMinCores = minCores.toString();
-                    const regexMaxCores = maxCores.toString();
-                    
-                    // Match a field that has just a number within our range
-                    for (let i = minCores; i <= maxCores; i++) {
-                        numericFilter.$or.push({ 'Características.Núcleos': i.toString() });
-                    }
-                    
-                    // Add the cores filter to the main query
-                    query = {
-                        ...query,
-                        ...numericFilter
-                    };
+                    // Add numeric range filter for cores
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Núcleos', 
+                        'nucleos'
+                    ], minCores, maxCores));
+                    useAggregation = true;
                 }
                 
                 // Filtro de frecuencia base
@@ -139,57 +165,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxFreq = parseFloat(req.query.reloj_base[1]);
                     console.log(`Applying CPU base clock filter: ${minFreq} - ${maxFreq}`);
                     
-                    // Get a sample to check the data structure
-                    const sampleDoc = await mongoose.connection.db
-                        .collection(collName)
-                        .findOne({});
-                        
-                    if (DEBUG_FILTERS && sampleDoc) {
-                        console.log('Sample document structure for base clock:', 
-                            sampleDoc.Características?.['Reloj base'] || 'Field not found');
-                    }
-                    
-                    // Use aggregation to extract and filter numeric values
-                    const docs = await mongoose.connection.db
-                        .collection(collName)
-                        .aggregate([
-                            {
-                                $addFields: {
-                                    extractedClockValue: {
-                                        $let: {
-                                            vars: {
-                                                clockString: { $ifNull: ["$Características.Reloj base", ""] }
-                                            },
-                                            in: {
-                                                $cond: {
-                                                    if: { $eq: [{ $type: "$$clockString" }, "string"] },
-                                                    then: {
-                                                        $toDouble: {
-                                                            $arrayElemAt: [
-                                                                { $regexFind: { input: "$$clockString", regex: /(\d+(\.\d+)?)/ } }.captures,
-                                                                0
-                                                            ]
-                                                        }
-                                                    },
-                                                    else: null
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                $match: {
-                                    $or: [
-                                        { extractedClockValue: { $gte: minFreq, $lte: maxFreq } },
-                                        { reloj_base: { $gte: minFreq, $lte: maxFreq } }
-                                    ]
-                                }
-                            }
-                        ])
-                        .toArray();
-                    
-                    return res.json(docs);
+                    // Add numeric range filter for base clock
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Reloj base', 
+                        'reloj_base'
+                    ], minFreq, maxFreq));
+                    useAggregation = true;
                 }
                 
                 // Filtro de TDP
@@ -198,13 +179,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxTDP = parseInt(req.query.tdp[1]);
                     console.log(`Applying CPU TDP filter: ${minTDP} - ${maxTDP}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.TDP': { $gte: minTDP, $lte: maxTDP } },
-                            { tdp: { $gte: minTDP, $lte: maxTDP } }
-                        ]
-                    };
+                    // Add numeric range filter for TDP
+                    pipeline.push(createNumericRangeStage([
+                        'Características.TDP', 
+                        'tdp'
+                    ], minTDP, maxTDP));
+                    useAggregation = true;
                 }
                 
                 // Filtro de cooler incluido
@@ -212,13 +192,15 @@ app.get('/api/components/:category', async (req, res) => {
                     const hasIncludedCooler = req.query.enfriador_incluido === 'true';
                     console.log(`Applying CPU cooler included filter: ${hasIncludedCooler}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Enfriador incluido': hasIncludedCooler ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { enfriador_incluido: hasIncludedCooler }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Enfriador incluido': hasIncludedCooler ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
+                                { enfriador_incluido: hasIncludedCooler }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de GPU integrada
@@ -226,13 +208,31 @@ app.get('/api/components/:category', async (req, res) => {
                     const hasIntegratedGPU = req.query.gpu_integrada === 'true';
                     console.log(`Applying CPU integrated GPU filter: ${hasIntegratedGPU}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.GPU integrada': hasIntegratedGPU ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { gpu_integrada: hasIntegratedGPU }
-                        ]
-                    };
+                    // Si hasIntegratedGPU es true, buscamos valores que NO sean "No"
+                    // Si hasIntegratedGPU es false, buscamos valores que sean "No" o null
+                    if (hasIntegratedGPU) {
+                        pipeline.push({
+                            $match: {
+                                $or: [
+                                    { 'Características.GPU integrada': { $exists: true, $ne: "No" } },
+                                    { gpu_integrada: true }
+                                ]
+                            }
+                        });
+                    } else {
+                        pipeline.push({
+                            $match: {
+                                $or: [
+                                    { 'Características.GPU integrada': "No" },
+                                    { 'Características.GPU integrada': { $exists: false } },
+                                    { gpu_integrada: false },
+                                    { gpu_integrada: { $exists: false } }
+                                ]
+                            }
+                        });
+                    }
+                    
+                    useAggregation = true;
                 }
             }
             
@@ -243,40 +243,36 @@ app.get('/api/components/:category', async (req, res) => {
                     const brand = req.query.gpuBrand.toLowerCase();
                     console.log(`Applying GPU brand filter: ${brand}`);
                     
+                    let brandConditions = [];
+                    
                     if (brand === 'nvidia') {
-                        // For NVIDIA GPUs, search for common NVIDIA product lines
-                        query = { 
-                            ...query, 
-                            $or: [
-                                { Nombre: { $regex: /nvidia/i } },
-                                { Nombre: { $regex: /rtx/i } },
-                                { Nombre: { $regex: /gtx/i } },
-                                { Nombre: { $regex: /quadro/i } },
-                                { Nombre: { $regex: /geforce/i } },
-                                { Marca: { $regex: /nvidia/i } }
-                            ] 
-                        };
+                        // For NVIDIA GPUs
+                        brandConditions = [
+                            { Nombre: { $regex: /nvidia/i } },
+                            { Nombre: { $regex: /rtx/i } },
+                            { Nombre: { $regex: /gtx/i } },
+                            { Nombre: { $regex: /quadro/i } },
+                            { Nombre: { $regex: /geforce/i } },
+                            { Marca: { $regex: /nvidia/i } }
+                        ];
                     } else if (brand === 'amd') {
-                        // For AMD GPUs, search for common AMD product lines
-                        query = { 
-                            ...query, 
-                            $or: [
-                                { Nombre: { $regex: /amd/i } },
-                                { Nombre: { $regex: /radeon/i } },
-                                { Nombre: { $regex: /rx\s?\d/i } }, // Matches RX followed by a digit, with or without space
-                                { Marca: { $regex: /amd/i } }
-                            ] 
-                        };
+                        // For AMD GPUs
+                        brandConditions = [
+                            { Nombre: { $regex: /amd/i } },
+                            { Nombre: { $regex: /radeon/i } },
+                            { Nombre: { $regex: /rx\s?\d/i } },
+                            { Marca: { $regex: /amd/i } }
+                        ];
                     } else {
-                        // Fallback to simple brand name matching
-                        query = { 
-                            ...query, 
-                            $or: [
-                                { Nombre: { $regex: new RegExp(brand, 'i') } },
-                                { Marca: { $regex: new RegExp(brand, 'i') } }
-                            ]
-                        };
+                        // Generic brand search
+                        brandConditions = [
+                            { Nombre: { $regex: new RegExp(brand, 'i') } },
+                            { Marca: { $regex: new RegExp(brand, 'i') } }
+                        ];
                     }
+                    
+                    pipeline.push({ $match: { $or: brandConditions } });
+                    useAggregation = true;
                 }
                 
                 // Filtro de memoria VRAM
@@ -285,13 +281,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxVRAM = parseInt(req.query.memoria[1]);
                     console.log(`Applying GPU VRAM filter: ${minVRAM} - ${maxVRAM}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Memoria': { $gte: minVRAM, $lte: maxVRAM } },
-                            { memoria: { $gte: minVRAM, $lte: maxVRAM } }
-                        ]
-                    };
+                    // Add numeric range filter for VRAM
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Memoria', 
+                        'memoria'
+                    ], minVRAM, maxVRAM));
+                    useAggregation = true;
                 }
                 
                 // Filtro de longitud de GPU
@@ -300,39 +295,42 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxLength = parseInt(req.query.longitud[1]);
                     console.log(`Applying GPU length filter: ${minLength} - ${maxLength}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Longitud': { $gte: minLength, $lte: maxLength } },
-                            { longitud: { $gte: minLength, $lte: maxLength } }
-                        ]
-                    };
+                    // Add numeric range filter for GPU length
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Longitud', 
+                        'longitud'
+                    ], minLength, maxLength));
+                    useAggregation = true;
                 }
                 
                 // Filtro de tipo de memoria
                 if (req.query.tipo_de_memoria && req.query.tipo_de_memoria !== '') {
                     console.log(`Applying GPU memory type filter: ${req.query.tipo_de_memoria}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Tipo de memoria': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
-                            { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Tipo de memoria': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
+                                { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de interfaz
                 if (req.query.interfaz && req.query.interfaz !== '') {
                     console.log(`Applying GPU interface filter: ${req.query.interfaz}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Interfaz': { $regex: req.query.interfaz, $options: 'i' } },
-                            { interfaz: { $regex: req.query.interfaz, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Interfaz': { $regex: req.query.interfaz, $options: 'i' } },
+                                { interfaz: { $regex: req.query.interfaz, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de TDP
@@ -341,13 +339,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxTDP = parseInt(req.query.tdp[1]);
                     console.log(`Applying GPU TDP filter: ${minTDP} - ${maxTDP}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.TDP': { $gte: minTDP, $lte: maxTDP } },
-                            { tdp: { $gte: minTDP, $lte: maxTDP } }
-                        ]
-                    };
+                    // Add numeric range filter for TDP
+                    pipeline.push(createNumericRangeStage([
+                        'Características.TDP', 
+                        'tdp'
+                    ], minTDP, maxTDP));
+                    useAggregation = true;
                 }
             }
             
@@ -357,14 +354,16 @@ app.get('/api/components/:category', async (req, res) => {
                 if (req.query.factor_de_forma && req.query.factor_de_forma !== '') {
                     console.log(`Applying motherboard form factor filter: ${req.query.factor_de_forma}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
-                            { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } },
-                            { 'Características.Formato': { $regex: req.query.factor_de_forma, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
+                                { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } },
+                                { 'Características.Formato': { $regex: req.query.factor_de_forma, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de socket
@@ -373,14 +372,16 @@ app.get('/api/components/:category', async (req, res) => {
                     if (socketValue && socketValue !== '') {
                         console.log(`Applying motherboard socket filter: ${socketValue}`);
                         
-                        query = {
-                            ...query,
-                            $or: [
-                                { 'Características.Socket': { $regex: socketValue, $options: 'i' } },
-                                { 'Características.Enchufe': { $regex: socketValue, $options: 'i' } },
-                                { enchufe: { $regex: socketValue, $options: 'i' } }
-                            ]
-                        };
+                        pipeline.push({
+                            $match: {
+                                $or: [
+                                    { 'Características.Socket': { $regex: socketValue, $options: 'i' } },
+                                    { 'Características.Enchufe': { $regex: socketValue, $options: 'i' } },
+                                    { enchufe: { $regex: socketValue, $options: 'i' } }
+                                ]
+                            }
+                        });
+                        useAggregation = true;
                     }
                 }
                 
@@ -388,13 +389,15 @@ app.get('/api/components/:category', async (req, res) => {
                 if (req.query.tipo_de_memoria && req.query.tipo_de_memoria !== '') {
                     console.log(`Applying motherboard memory type filter: ${req.query.tipo_de_memoria}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Tipo de memoria': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
-                            { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Tipo de memoria': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
+                                { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de ranuras de RAM
@@ -403,13 +406,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxSlots = parseInt(req.query.ranuras_de_ram[1]);
                     console.log(`Applying motherboard RAM slots filter: ${minSlots} - ${maxSlots}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Ranuras de RAM': { $gte: minSlots, $lte: maxSlots } },
-                            { ranuras_de_ram: { $gte: minSlots, $lte: maxSlots } }
-                        ]
-                    };
+                    // Add numeric range filter for RAM slots
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Ranuras de RAM', 
+                        'ranuras_de_ram'
+                    ], minSlots, maxSlots));
+                    useAggregation = true;
                 }
                 
                 // Filtro de ranuras M.2
@@ -418,13 +420,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxSlots = parseInt(req.query.ranuras_m2[1]);
                     console.log(`Applying motherboard M.2 slots filter: ${minSlots} - ${maxSlots}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Ranuras M.2': { $gte: minSlots, $lte: maxSlots } },
-                            { ranuras_m2: { $gte: minSlots, $lte: maxSlots } }
-                        ]
-                    };
+                    // Add numeric range filter for M.2 slots
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Ranuras M.2', 
+                        'ranuras_m2'
+                    ], minSlots, maxSlots));
+                    useAggregation = true;
                 }
                 
                 // Filtro de WiFi incluido
@@ -432,13 +433,17 @@ app.get('/api/components/:category', async (req, res) => {
                     const hasWifi = req.query.redes_inalambricas === 'true';
                     console.log(`Applying motherboard WiFi filter: ${hasWifi}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.WiFi': hasWifi ? { $regex: /si|sí|yes|true|incluido|integrado/i } : { $regex: /no|false/i } },
-                            { redes_inalambricas: hasWifi }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.WiFi': hasWifi ? 
+                                  { $regex: /si|sí|yes|true|incluido|integrado|wifi/i } : 
+                                  { $regex: /no|false/i } },
+                                { redes_inalambricas: hasWifi }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
             }
             
@@ -448,13 +453,16 @@ app.get('/api/components/:category', async (req, res) => {
                 if (req.query.tipo_de_memoria && req.query.tipo_de_memoria !== '') {
                     console.log(`Applying memory type filter: ${req.query.tipo_de_memoria}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Tipo': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
-                            { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Tipo': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
+                                { 'Características.Tipo de memoria': { $regex: req.query.tipo_de_memoria, $options: 'i' } },
+                                { tipo_de_memoria: { $regex: req.query.tipo_de_memoria, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de velocidad
@@ -463,26 +471,27 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxSpeed = parseInt(req.query.velocidad[1]);
                     console.log(`Applying memory speed filter: ${minSpeed} - ${maxSpeed}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Velocidad': { $gte: minSpeed, $lte: maxSpeed } },
-                            { velocidad: { $gte: minSpeed, $lte: maxSpeed } }
-                        ]
-                    };
+                    // Add numeric range filter for memory speed
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Velocidad', 
+                        'velocidad'
+                    ], minSpeed, maxSpeed));
+                    useAggregation = true;
                 }
                 
                 // Filtro de configuración
                 if (req.query.configuracion && req.query.configuracion !== '') {
                     console.log(`Applying memory configuration filter: ${req.query.configuracion}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Configuración': { $regex: req.query.configuracion, $options: 'i' } },
-                            { configuracion: { $regex: req.query.configuracion, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Configuración': { $regex: req.query.configuracion, $options: 'i' } },
+                                { configuracion: { $regex: req.query.configuracion, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de refrigeración pasiva
@@ -490,13 +499,17 @@ app.get('/api/components/:category', async (req, res) => {
                     const hasPassiveCooling = req.query.refrigeracion_pasiva === 'true';
                     console.log(`Applying memory passive cooling filter: ${hasPassiveCooling}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Refrigeración pasiva': hasPassiveCooling ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { refrigeracion_pasiva: hasPassiveCooling }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Refrigeración pasiva': hasPassiveCooling ? 
+                                  { $regex: /si|sí|yes|true/i } : 
+                                  { $regex: /no|false/i } },
+                                { refrigeracion_pasiva: hasPassiveCooling }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de latencia CAS
@@ -505,13 +518,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxLatency = parseInt(req.query.latencia_cas[1]);
                     console.log(`Applying memory CAS latency filter: ${minLatency} - ${maxLatency}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Latencia CAS': { $gte: minLatency, $lte: maxLatency } },
-                            { latencia_cas: { $gte: minLatency, $lte: maxLatency } }
-                        ]
-                    };
+                    // Add numeric range filter for CAS latency
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Latencia CAS', 
+                        'latencia_cas'
+                    ], minLatency, maxLatency));
+                    useAggregation = true;
                 }
             }
             
@@ -521,52 +533,61 @@ app.get('/api/components/:category', async (req, res) => {
                 if (req.query.tipo_de_almacenamiento && req.query.tipo_de_almacenamiento !== '') {
                     console.log(`Applying storage type filter: ${req.query.tipo_de_almacenamiento}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Tipo': { $regex: req.query.tipo_de_almacenamiento, $options: 'i' } },
-                            { tipo_de_almacenamiento: { $regex: req.query.tipo_de_almacenamiento, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Tipo': { $regex: req.query.tipo_de_almacenamiento, $options: 'i' } },
+                                { 'Características.Tipo de almacenamiento': { $regex: req.query.tipo_de_almacenamiento, $options: 'i' } },
+                                { tipo_de_almacenamiento: { $regex: req.query.tipo_de_almacenamiento, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de capacidad
                 if (req.query.capacidad && req.query.capacidad !== '') {
                     console.log(`Applying storage capacity filter: ${req.query.capacidad}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Capacidad': { $regex: req.query.capacidad, $options: 'i' } },
-                            { capacidad: { $regex: req.query.capacidad, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Capacidad': { $regex: req.query.capacidad, $options: 'i' } },
+                                { capacidad: { $regex: req.query.capacidad, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de interfaz
                 if (req.query.interfaz && req.query.interfaz !== '') {
                     console.log(`Applying storage interface filter: ${req.query.interfaz}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Interfaz': { $regex: req.query.interfaz, $options: 'i' } },
-                            { interfaz: { $regex: req.query.interfaz, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Interfaz': { $regex: req.query.interfaz, $options: 'i' } },
+                                { interfaz: { $regex: req.query.interfaz, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de factor de forma
                 if (req.query.factor_de_forma && req.query.factor_de_forma !== '') {
                     console.log(`Applying storage form factor filter: ${req.query.factor_de_forma}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
-                            { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
+                                { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de compatibilidad NVMe
@@ -574,13 +595,17 @@ app.get('/api/components/:category', async (req, res) => {
                     const isNvmeCompatible = req.query.compatibilidad_con_nvme === 'true';
                     console.log(`Applying storage NVMe compatibility filter: ${isNvmeCompatible}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Compatible con NVMe': isNvmeCompatible ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { compatibilidad_con_nvme: isNvmeCompatible }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Compatible con NVMe': isNvmeCompatible ? 
+                                  { $regex: /si|sí|yes|true/i } : 
+                                  { $regex: /no|false/i } },
+                                { compatibilidad_con_nvme: isNvmeCompatible }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
             }
             
@@ -592,26 +617,28 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxWattage = parseInt(req.query.potencia[1]);
                     console.log(`Applying PSU wattage filter: ${minWattage} - ${maxWattage}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Potencia': { $gte: minWattage, $lte: maxWattage } },
-                            { potencia: { $gte: minWattage, $lte: maxWattage } }
-                        ]
-                    };
+                    // Add numeric range filter for PSU wattage
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Potencia', 
+                        'potencia'
+                    ], minWattage, maxWattage));
+                    useAggregation = true;
                 }
                 
                 // Filtro de certificación
                 if (req.query.calificacion_de_eficiencia && req.query.calificacion_de_eficiencia !== '') {
                     console.log(`Applying PSU certification filter: ${req.query.calificacion_de_eficiencia}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Certificación': { $regex: req.query.calificacion_de_eficiencia, $options: 'i' } },
-                            { calificacion_de_eficiencia: { $regex: req.query.calificacion_de_eficiencia, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Certificación': { $regex: req.query.calificacion_de_eficiencia, $options: 'i' } },
+                                { 'Características.Calificación de eficiencia': { $regex: req.query.calificacion_de_eficiencia, $options: 'i' } },
+                                { calificacion_de_eficiencia: { $regex: req.query.calificacion_de_eficiencia, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de modularidad
@@ -619,26 +646,32 @@ app.get('/api/components/:category', async (req, res) => {
                     const isModular = req.query.modular === 'true';
                     console.log(`Applying PSU modularity filter: ${isModular}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Modular': isModular ? { $regex: /si|sí|yes|true|completo|semi/i } : { $regex: /no|false/i } },
-                            { modular: isModular }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Modular': isModular ? 
+                                  { $regex: /si|sí|yes|true|completo|semi/i } : 
+                                  { $regex: /no|false/i } },
+                                { modular: isModular }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de factor de forma
                 if (req.query.factor_de_forma && req.query.factor_de_forma !== '') {
                     console.log(`Applying PSU form factor filter: ${req.query.factor_de_forma}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
-                            { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Factor de forma': { $regex: req.query.factor_de_forma, $options: 'i' } },
+                                { factor_de_forma: { $regex: req.query.factor_de_forma, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de longitud
@@ -647,13 +680,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxLength = parseInt(req.query.longitud[1]);
                     console.log(`Applying PSU length filter: ${minLength} - ${maxLength}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Longitud': { $gte: minLength, $lte: maxLength } },
-                            { longitud: { $gte: minLength, $lte: maxLength } }
-                        ]
-                    };
+                    // Add numeric range filter for PSU length
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Longitud', 
+                        'longitud'
+                    ], minLength, maxLength));
+                    useAggregation = true;
                 }
             }
             
@@ -665,46 +697,42 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxLength = parseInt(req.query.longitud_maxima_de_gpu[1]);
                     console.log(`Applying case max GPU length filter: ${minLength} - ${maxLength}`);
                     
-                    // For this field, we need to handle that in the database it might be stored as a string like "400 mm"
-                    // We'll use a regex to extract just the number
-                    query = {
-                        ...query,
-                        $or: [
-                            // Direct numeric comparison if it's stored as a number
-                            { longitud_maxima_de_gpu: { $gte: minLength, $lte: maxLength } },
-                            // Regex pattern to match strings like "400 mm" and ensure the number is in range
-                            { 'Características.Longitud máxima de GPU': { 
-                                $regex: new RegExp(`^(${minLength}|${minLength + 1}|.{0,3}${maxLength}).{0,3}mm`, 'i') 
-                            }}
-                        ]
-                    };
+                    // Add numeric range filter for max GPU length
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Longitud máxima de GPU', 
+                        'longitud_maxima_de_gpu'
+                    ], minLength, maxLength));
+                    useAggregation = true;
                 }
                 
                 // Filtro de factor de forma
                 if (req.query.factores_de_forma && req.query.factores_de_forma !== '') {
                     console.log(`Applying case form factor filter: ${req.query.factores_de_forma}`);
                     
-                    // Since this might be stored as a comma-separated string
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Factores de forma': { $regex: req.query.factores_de_forma, $options: 'i' } },
-                            { factores_de_forma: { $regex: req.query.factores_de_forma, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Factores de forma': { $regex: req.query.factores_de_forma, $options: 'i' } },
+                                { factores_de_forma: { $regex: req.query.factores_de_forma, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de ranuras de expansión
                 if (req.query.ranuras_de_expansion && req.query.ranuras_de_expansion !== '') {
                     console.log(`Applying case expansion slots filter: ${req.query.ranuras_de_expansion}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Ranuras de expansión de altura completa': { $regex: req.query.ranuras_de_expansion, $options: 'i' } },
-                            { ranuras_de_expansion_de_altura: { $regex: req.query.ranuras_de_expansion, $options: 'i' } }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Ranuras de expansión de altura completa': { $regex: req.query.ranuras_de_expansion, $options: 'i' } },
+                                { ranuras_de_expansion_de_altura: { $regex: req.query.ranuras_de_expansion, $options: 'i' } }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
             }
             
@@ -715,13 +743,17 @@ app.get('/api/components/:category', async (req, res) => {
                     const isLiquidCooled = req.query.refrigerado_por_agua === 'true';
                     console.log(`Applying cooler liquid cooling filter: ${isLiquidCooled}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Refrigerado por agua': isLiquidCooled ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { refrigerado_por_agua: isLiquidCooled }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Refrigerado por agua': isLiquidCooled ? 
+                                  { $regex: /si|sí|yes|true/i } : 
+                                  { $regex: /no|false/i } },
+                                { refrigerado_por_agua: isLiquidCooled }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de enfriamiento pasivo
@@ -729,13 +761,17 @@ app.get('/api/components/:category', async (req, res) => {
                     const isPassiveCooling = req.query.sin_ventilador === 'true';
                     console.log(`Applying cooler passive cooling filter: ${isPassiveCooling}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Sin ventilador': isPassiveCooling ? { $regex: /si|sí|yes|true/i } : { $regex: /no|false/i } },
-                            { sin_ventilador: isPassiveCooling }
-                        ]
-                    };
+                    pipeline.push({
+                        $match: {
+                            $or: [
+                                { 'Características.Sin ventilador': isPassiveCooling ? 
+                                  { $regex: /si|sí|yes|true/i } : 
+                                  { $regex: /no|false/i } },
+                                { sin_ventilador: isPassiveCooling }
+                            ]
+                        }
+                    });
+                    useAggregation = true;
                 }
                 
                 // Filtro de ruido máximo
@@ -744,13 +780,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxNoise = parseInt(req.query.ruido_maximo[1]);
                     console.log(`Applying cooler max noise filter: ${minNoise} - ${maxNoise}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Ruido máximo': { $gte: minNoise, $lte: maxNoise } },
-                            { ruido_maximo: { $gte: minNoise, $lte: maxNoise } }
-                        ]
-                    };
+                    // Add numeric range filter for max noise
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Ruido máximo', 
+                        'ruido_maximo'
+                    ], minNoise, maxNoise));
+                    useAggregation = true;
                 }
                 
                 // Filtro de RPM máximas
@@ -759,13 +794,12 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxRPM = parseInt(req.query.rpm_maximas[1]);
                     console.log(`Applying cooler max RPM filter: ${minRPM} - ${maxRPM}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.RPM máximas': { $gte: minRPM, $lte: maxRPM } },
-                            { rpm_maximas: { $gte: minRPM, $lte: maxRPM } }
-                        ]
-                    };
+                    // Add numeric range filter for max RPM
+                    pipeline.push(createNumericRangeStage([
+                        'Características.RPM máximas', 
+                        'rpm_maximas'
+                    ], minRPM, maxRPM));
+                    useAggregation = true;
                 }
                 
                 // Filtro de longitud del radiador
@@ -774,41 +808,55 @@ app.get('/api/components/:category', async (req, res) => {
                     const maxLength = parseInt(req.query.longitud_del_radiador[1]);
                     console.log(`Applying cooler radiator length filter: ${minLength} - ${maxLength}`);
                     
-                    query = {
-                        ...query,
-                        $or: [
-                            { 'Características.Longitud del radiador': { $gte: minLength, $lte: maxLength } },
-                            { longitud_del_radiador: { $gte: minLength, $lte: maxLength } }
-                        ]
-                    };
+                    // Add numeric range filter for radiator length
+                    pipeline.push(createNumericRangeStage([
+                        'Características.Longitud del radiador', 
+                        'longitud_del_radiador'
+                    ], minLength, maxLength));
+                    useAggregation = true;
                 }
             }
         }
 
-        console.log('Final query filters:', JSON.stringify(query));
+        let items = [];
         
-        // Leemos la colección con los filtros aplicados
-        const items = await mongoose.connection.db
-            .collection(collName)
-            .find(query)
-            .toArray();
+        if (useAggregation && pipeline.length > 0) {
+            // Log final pipeline for debugging
+            console.log('Final aggregation pipeline:', JSON.stringify(pipeline));
             
-        console.log(`Encontrados ${items.length} componentes en ${collName}`);
-        
-        // Si no hay resultados y hay filtros aplicados, intenta un query simplificado
-        if (items.length === 0 && Object.keys(query).length > 0) {
-            console.log('No se encontraron resultados con los filtros. Realizando un diagnóstico...');
+            // Execute aggregation pipeline
+            items = await mongoose.connection.db
+                .collection(collName)
+                .aggregate(pipeline)
+                .toArray();
             
-            // Mostrar una muestra de documentos para ver su estructura
-            const sampleDocs = await mongoose.connection.db
+            console.log(`Encontrados ${items.length} componentes en ${collName} usando el pipeline de agregación`);
+            
+            // Show sample result for debugging if no results found
+            if (items.length === 0) {
+                console.log('No se encontraron resultados con los filtros. Realizando un diagnóstico...');
+                
+                // Get a sample document to check data structure
+                const sampleDocs = await mongoose.connection.db
+                    .collection(collName)
+                    .find({})
+                    .limit(1)
+                    .toArray();
+                    
+                if (sampleDocs.length > 0) {
+                    console.log('Muestra de estructura de documento:', JSON.stringify(sampleDocs[0]));
+                }
+            }
+            
+        } else {
+            // If no filters, just get all documents
+            console.log(`Obteniendo todos los documentos de ${collName}`);
+            items = await mongoose.connection.db
                 .collection(collName)
                 .find({})
-                .limit(1)
                 .toArray();
                 
-            if (sampleDocs.length > 0) {
-                console.log('Muestra de estructura de documento:', JSON.stringify(sampleDocs[0]));
-            }
+            console.log(`Encontrados ${items.length} componentes en ${collName}`);
         }
         
         res.json(items);
@@ -818,7 +866,9 @@ app.get('/api/components/:category', async (req, res) => {
     }
 });
 
+// Configurar el servidor en el puerto especificado
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 API corriendo en http://localhost:${PORT}/api`);
 });
+
