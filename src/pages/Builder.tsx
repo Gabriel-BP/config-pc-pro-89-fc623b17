@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Component, ComponentCategory } from "@/types/components";
 import { CategorySelector } from "@/components/CategorySelector";
 import { ComponentList } from "@/components/ComponentList";
@@ -19,6 +19,45 @@ export default function Builder() {
   
   // Get filters and selectedComponents from context
   const { filters, selectedComponents, setSelectedComponents } = useFilters();
+
+  // Apply global filters when component category changes
+  useEffect(() => {
+    if (selectedCategory) {
+      // Create a new filters object based on the currently selected category
+      const newFilters: Record<string, any> = {};
+      
+      if (selectedCategory === "cpu") {
+        // Apply processorBrand and socket filters for CPUs
+        if (filters.processorBrand) {
+          newFilters.processorBrand = filters.processorBrand;
+        }
+        if (filters.socket) {
+          newFilters.socket = filters.socket;
+        }
+      } 
+      else if (selectedCategory === "gpu") {
+        // Apply gpuBrand filter for GPUs
+        if (filters.gpuBrand) {
+          newFilters.gpuBrand = filters.gpuBrand;
+        }
+      }
+      else if (selectedCategory === "motherboard") {
+        // Apply motherboardSize and socket filters for motherboards
+        if (filters.motherboardSize) {
+          newFilters.factor_de_forma = filters.motherboardSize;
+        }
+        if (filters.socket) {
+          newFilters.socket = filters.socket;
+        }
+      }
+      
+      // Log the applied filters for debugging
+      console.log(`Applying global filters for ${selectedCategory}:`, newFilters);
+      
+      // Set the component filters
+      setComponentFilters(newFilters);
+    }
+  }, [selectedCategory, filters]);
 
   // Log current filters for debugging
   console.log('Current filters in Builder page:', filters);
@@ -50,7 +89,18 @@ export default function Builder() {
   };
 
   const handleFilterChange = (newFilters: Record<string, any>) => {
-    setComponentFilters(newFilters);
+    // Merge the global filters with component-specific filters
+    const mergedFilters = { ...componentFilters };
+    
+    // Add any new filters from the FilterPanel
+    Object.keys(newFilters).forEach(key => {
+      if (newFilters[key] !== undefined && newFilters[key] !== "") {
+        mergedFilters[key] = newFilters[key];
+      }
+    });
+    
+    console.log('Applied filters:', mergedFilters);
+    setComponentFilters(mergedFilters);
   };
 
   return (

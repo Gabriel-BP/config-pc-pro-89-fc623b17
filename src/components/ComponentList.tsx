@@ -4,9 +4,10 @@ import { getComponents } from "@/lib/axios";
 import { Component, ComponentCategory } from "@/types/components";
 import { ComponentDetails } from "./ComponentDetails";
 import { SortControls } from "./SortControls";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ComponentGrid } from "./components/ComponentGrid";
 import { ComponentListPagination } from "./components/ComponentListPagination";
+import { toast } from "sonner";
 
 interface ComponentListProps {
   category: ComponentCategory;
@@ -20,22 +21,107 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   const [sortOption, setSortOption] = useState<"nameAsc" | "nameDesc" | "priceAsc" | "priceDesc" | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 14;
+  const [lastUsedFilters, setLastUsedFilters] = useState<Record<string, any>>({});
+
+  // Reset pagination when category or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category, JSON.stringify(filters)]);
+
+  // Process filters before sending to API
+  const processedFilters = useMemo(() => {
+    const result: Record<string, any> = {};
+    
+    // Copy filters and normalize them
+    Object.entries(filters).forEach(([key, value]) => {
+      // Skip empty values
+      if (value === undefined || value === null || value === "") {
+        return;
+      }
+      
+      // Special handling for filter transformations based on your backend expectations
+      if (key === "name") {
+        result.name = value;
+      } 
+      // Handle CPU specific filters
+      else if (category === "cpu") {
+        if (key === "processorBrand") {
+          result.processorBrand = value;
+        } 
+        else if (key === "socket" || key === "enchufe") {
+          // Make sure we're sending socket in the expected format for the backend
+          result.enchufe = value;
+        }
+        else {
+          // Pass through other filters
+          result[key] = value;
+        }
+      }
+      // Handle GPU specific filters
+      else if (category === "gpu") {
+        if (key === "gpuBrand") {
+          result.gpuBrand = value;
+        }
+        else {
+          // Pass through other filters
+          result[key] = value;
+        }
+      }
+      // Handle motherboard specific filters
+      else if (category === "motherboard") {
+        if (key === "motherboardSize" || key === "factor_de_forma") {
+          // Normalize motherboard size to the expected format
+          result.factor_de_forma = value;
+        }
+        else if (key === "socket" || key === "enchufe") {
+          // Make sure we're sending socket in the expected format for the backend
+          result.enchufe = value;
+        }
+        else {
+          // Pass through other filters
+          result[key] = value;
+        }
+      } 
+      else {
+        // For other categories, pass through filters as-is
+        result[key] = value;
+      }
+    });
+    
+    return result;
+  }, [filters, category]);
 
   // Add debugging to see what filters are being applied
   console.log('Component category:', category);
-  console.log('Filters being sent to API:', filters);
+  console.log('Processed filters being sent to API:', processedFilters);
 
-  const { data: components, isLoading } = useQuery({
-    queryKey: ["components", category, filters],
-    queryFn: () => getComponents(category, filters),
+  const { data: components, isLoading, isError, error } = useQuery({
+    queryKey: ["components", category, processedFilters],
+    queryFn: () => getComponents(category, processedFilters),
+    onSuccess: (data) => {
+      // Check if filters changed and results came back
+      const filtersChanged = JSON.stringify(lastUsedFilters) !== JSON.stringify(processedFilters);
+      setLastUsedFilters(processedFilters);
+      
+      // Show toast if filters were applied and results changed
+      if (filtersChanged && Object.keys(processedFilters).length > 0) {
+        toast.success(`Se encontraron ${data.length} componentes`);
+      }
+    },
+    onError: (err) => {
+      console.error('Error fetching components:', err);
+      toast.error('Error al cargar los componentes');
+    }
   });
 
   // Add debugging for received components
-  console.log(`Received ${components?.length || 0} components for category ${category}`);
-  if (components?.length === 0) {
-    // Log a sample filter to see what query would work
-    console.log('No components found with these filters.');
-  }
+  useEffect(() => {
+    console.log(`Received ${components?.length || 0} components for category ${category}`);
+    if (components?.length === 0 && Object.keys(processedFilters).length > 0) {
+      // Log a sample filter to see what query would work
+      console.log('No components found with these filters. Consider relaxing filter criteria.');
+    }
+  }, [components, category, processedFilters]);
   
   const sortedComponents = useMemo(() => {
     if (!components) return [];
@@ -101,21 +187,37 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
     );
   }
 
+  if (isError) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-500">Error al cargar los componentes: {(error as Error).message}</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <SortControls onSort={setSortOption} currentSort={sortOption} />
       
-      <ComponentGrid 
-        components={paginatedComponents} 
-        onComponentClick={handleComponentClick} 
-      />
+      {components && components.length === 0 ? (
+        <div className="p-8 text-center">
+          <p className="text-gray-500">No se encontraron componentes con los filtros seleccionados</p>
+        </div>
+      ) : (
+        <>
+          <ComponentGrid 
+            components={paginatedComponents} 
+            onComponentClick={handleComponentClick} 
+          />
 
-      <ComponentListPagination 
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPrevPage={handlePrevPage}
-        onNextPage={handleNextPage}
-      />
+          <ComponentListPagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPrevPage={handlePrevPage}
+            onNextPage={handleNextPage}
+          />
+        </>
+      )}
 
       <ComponentDetails
         component={selectedComponent}

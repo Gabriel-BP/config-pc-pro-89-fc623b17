@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Component, ComponentCategory } from "@/types/components";
 
 type ProcessorBrand = "intel" | "amd" | null;
@@ -34,7 +34,52 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [filters, setFilters] = useState<FilterState>(defaultFilters);
   const [selectedComponents, setSelectedComponents] = useState<Partial<Record<ComponentCategory, Component>>>({});
 
-  console.log('Current filters in context:', filters);
+  // Log filters whenever they change
+  useEffect(() => {
+    console.log('Current filters in context:', filters);
+  }, [filters]);
+
+  // Update filters based on selected components
+  useEffect(() => {
+    // Extract socket from CPU or motherboard if it exists and update filters
+    const cpu = selectedComponents.cpu;
+    const motherboard = selectedComponents.motherboard;
+    
+    if (cpu?.Características?.Enchufe) {
+      const socketString = cpu.Características.Enchufe;
+      // Extract socket type from string like "AM4" or "LGA1700"
+      let socketType: SocketType = null;
+      
+      if (socketString.includes("AM4")) socketType = "am4";
+      else if (socketString.includes("AM5")) socketType = "am5";
+      else if (socketString.includes("LGA1200")) socketType = "lga1200";
+      else if (socketString.includes("LGA1700")) socketType = "lga1700";
+      else if (socketString.includes("LGA1851")) socketType = "lga1851";
+      
+      // Update socket in filters if we detected a valid one
+      if (socketType && socketType !== filters.socket) {
+        console.log(`Setting socket to ${socketType} based on selected CPU`);
+        setFilters(prev => ({...prev, socket: socketType}));
+      }
+    } 
+    else if (motherboard?.Características?.Enchufe) {
+      const socketString = motherboard.Características.Enchufe;
+      // Extract socket type from string
+      let socketType: SocketType = null;
+      
+      if (socketString.includes("AM4")) socketType = "am4";
+      else if (socketString.includes("AM5")) socketType = "am5";
+      else if (socketString.includes("LGA1200")) socketType = "lga1200";
+      else if (socketString.includes("LGA1700")) socketType = "lga1700";
+      else if (socketString.includes("LGA1851")) socketType = "lga1851";
+      
+      // Update socket in filters if we detected a valid one
+      if (socketType && socketType !== filters.socket) {
+        console.log(`Setting socket to ${socketType} based on selected motherboard`);
+        setFilters(prev => ({...prev, socket: socketType}));
+      }
+    }
+  }, [selectedComponents, filters.socket]);
 
   return (
     <FilterContext.Provider value={{ filters, setFilters, selectedComponents, setSelectedComponents }}>
