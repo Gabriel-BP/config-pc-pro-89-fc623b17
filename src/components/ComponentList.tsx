@@ -25,7 +25,7 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   console.log('Component category:', category);
   console.log('Filters being sent to API:', filters);
 
-  const { data: components, isLoading } = useQuery({
+  const { data: components = [], isLoading } = useQuery({
     queryKey: ["components", category, filters],
     queryFn: () => getComponents(category, filters),
   });
@@ -38,7 +38,7 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   }
   
   const sortedComponents = useMemo(() => {
-    if (!components) return [];
+    if (!components || !Array.isArray(components)) return [];
     
     if (!sortOption) return components;
     
@@ -67,14 +67,17 @@ export function ComponentList({ category, onSelectComponent, filters = {} }: Com
   }, [components, sortOption]);
 
   const paginatedComponents = useMemo(() => {
+    if (!Array.isArray(sortedComponents)) return [];
+    
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return sortedComponents.slice(startIndex, endIndex);
-  }, [sortedComponents, currentPage]);
+  }, [sortedComponents, currentPage, itemsPerPage]);
 
   const totalPages = useMemo(() => {
-    return Math.ceil((sortedComponents?.length || 0) / itemsPerPage);
-  }, [sortedComponents]);
+    if (!Array.isArray(sortedComponents)) return 1;
+    return Math.max(1, Math.ceil((sortedComponents.length || 0) / itemsPerPage));
+  }, [sortedComponents, itemsPerPage]);
 
   const handleComponentClick = (component: Component) => {
     setSelectedComponent(component);
